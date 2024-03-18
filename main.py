@@ -1,17 +1,6 @@
-"""
--*- coding : utf-8 -*-
-字符串常量声明与构造类
-@Author : Stupid_Cat
-@Time : 2024/3/16 14:54
-"""
+from Bilibili爬取一览 import Spider
 
-
-DEFAULT_HEADERS  ={
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3970.5 Safari/537.36',
-    'Referer': 'https://www.bilibili.com/',
-}
-
-COOKITES = {
+Cookies = {
     "buvid4": "8DE86F88-30FC-D1A4-27D2-BF88267E398966862-022121620-Am315Z0S4rpEKgx9os3ZMA%3D%3D",
     "i-wanna-go-back": "-1",
     "buvid_fp_plain": "undefined",
@@ -47,21 +36,12 @@ COOKITES = {
     "browser_resolution": "1706-924",
     "PVID": "3"
 }
+bvs = ["BV1M2421T7qk"]
 
+pachong = Spider(Cookies=Cookies)
 
-UP_VIDIO_DATA = {
-        'mid': '3493110839511225',
-        'ps': '30',
-        'tid': '0',
-        'pn': 1,
-        'keyword': '',
-        'order': 'pubdate',
-        'platform': 'web',
-        'web_location': '1550101',
-        'order_avoided': 'true',
-        'dm_img_list': '[]',
-        'dm_img_str': 'V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ',
-        'dm_cover_img_str': 'QU5HTEUgKEludGVsLCBJbnRlbChSKSBVSEQgR3JhcGhpY3MgNjMwICgweDAwMDAzRTkyKSBEaXJlY3QzRDExIHZzXzVfMCBwc181XzAsIEQzRDExKUdvb2dsZSBJbmMuIChJbnRlbC',
-        'w_rid': "w_rid",
-        'wts': 1,
-    }
+# pachong.get_Comment_to_DataBase(bvs)
+# pachong.get_Comment_tocsv(bvs)
+# pachong.get_bangumidata()
+# pachong.history_title_get()
+pachong.get_upvideo_bv()

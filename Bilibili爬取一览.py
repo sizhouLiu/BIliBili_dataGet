@@ -7,13 +7,18 @@
 
 import requests
 import os
-from time import sleep
 import json
 import time
 import pandas as pd
-from DefaulString import DEFAULT_HEADERS
 import re
 import pymysql
+
+from time import sleep
+
+import encrtpy
+from DefaulString import DEFAULT_HEADERS,UP_VIDIO_DATA
+from encrtpy import get_w_rid,calculate_md5
+from BIlibiliupBV import get_up_video_data
 
 
 class Spider(object):
@@ -201,7 +206,7 @@ class Spider(object):
                 sleep(1)
                 response = self.get_response(page=page, aid=aid)
 
-                # print(f'\n\n已经保存 {df.shape[0]} 条评论到')
+                # print(f'\n\n已经保存 {df.shape[0]} 条评论到')F
 
                 sleep(1)
 
@@ -272,16 +277,28 @@ class Spider(object):
                 {'番名': title, '评分': rating, '播放量': bofangliang, '弹幕数': danmaku})
             df.to_csv(f'BilibiliTOP50.csv', encoding='utf-8-sig', index=False)
 
-    def get_upvideo_bv(self, bvid="BV1im411R7UB"):
-        # TODO: 未完工
+    def get_upvideo_bv(self,mid,page=1,max_page=3):
+        """
 
-        url = "https://api.bilibili.com/x/space/arc/search"
+        :param mid: up主的id号 视频空间连接上的数字
+        :param page: 起始投稿页
+        :param max_page: 最大页
+        :return: 返回一个list->[视频标题,视频BV号,视频评论数,视频播放量]
+        """
+        # TODO: 可以使用 但是代码不够规范 需要调整
 
-        parms = {
-            "mid": 245645656,
-            "pn": 1,
-        }
-        print(requests.get(url, headers=DEFAULT_HEADERS, cookies=self.cookies, params=parms).text)
+        # date_time = int(time.time())
+        # url = 'https://api.bilibili.com/x/space/wbi/arc/search'
+
+        # data = UP_VIDIO_DATA
+        # data["w_rid"] = get_w_rid(date_time=date_time,page=page)
+        # data["wts"] = date_time
+        # data["pn"] = page
+        # data["mid"] = mid
+        # response = requests.get(url=url, params=data, headers=DEFAULT_HEADERS, cookies=Cookies).json()
+        # print(response)
+        # print(response["data"]["list"]["vlist"])
+        return [[video["title"],video["bvid"],video["comment_num"],video["play_num"]] for video in get_up_video_data(mid,pcursor=1,max_list_page=max_page)]
 
     def history_title_get(self, data_count=1200):
         """
@@ -308,7 +325,7 @@ class Spider(object):
             print(oid)
             time.sleep(1.5)
         df = pd.DataFrame(tilte_data, columns=["tilte", "tag_name", "kid", "bvid"])
-        df.to_csv(f"./个人信息{self.name}的历史记录.csv")
+        df.to_csv(f"./个人信息/{self.name}的历史记录.csv")
 
     def favlist_title_get(self):
         save_folder = '个人信息'
@@ -383,11 +400,15 @@ if __name__ == '__main__':
         "browser_resolution": "1706-924",
         "PVID": "3"
     }
-    bvs = ["BV1Hw41177mh"]
+    bvs = ["BV1Nx4y1D7XN"]
 
     pachong = Spider(Cookies=Cookies)
 
     # pachong.get_Comment_to_DataBase(bvs)
-    # pachong.get_Comment_tocsv(bvs)
-    pachong.get_bangumidata()
+    pachong.get_Comment_tocsv(bvs)
+    # pachong.get_bangumidata()
     # pachong.history_title_get()
+    a = pachong.get_upvideo_bv(245645656,page=1,max_page=6)
+    for i in a:
+        print([i[1]])
+        pachong.get_Comment_tocsv([i[1]])
