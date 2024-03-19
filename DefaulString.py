@@ -11,6 +11,27 @@ DEFAULT_HEADERS  ={
     'Referer': 'https://www.bilibili.com/',
 }
 
+SALT = "ea1db124af3c7062474693fa704f4ff8"
+# md5加的盐 话说盐应该怎么翻译
+
+UP_VIDIO_DATA = {
+        'mid': '3493110839511225',
+        'ps': '30',
+        'tid': '0',
+        'pn': 1,
+        'keyword': '',
+        'order': 'pubdate',
+        'platform': 'web',
+        'web_location': '1550101',
+        'order_avoided': 'true',
+        'dm_img_list': '[]',
+        'dm_img_str': 'V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ',
+        'dm_cover_img_str': 'QU5HTEUgKEludGVsLCBJbnRlbChSKSBVSEQgR3JhcGhpY3MgNjMwICgweDAwMDAzRTkyKSBEaXJlY3QzRDExIHZzXzVfMCBwc181XzAsIEQzRDExKUdvb2dsZSBJbmMuIChJbnRlbC',
+        'w_rid': "w_rid",
+        'wts': 1,
+    }
+
+
 COOKITES = {
     "buvid4": "8DE86F88-30FC-D1A4-27D2-BF88267E398966862-022121620-Am315Z0S4rpEKgx9os3ZMA%3D%3D",
     "i-wanna-go-back": "-1",
@@ -48,20 +69,17 @@ COOKITES = {
     "PVID": "3"
 }
 
-
-UP_VIDIO_DATA = {
-        'mid': '3493110839511225',
-        'ps': '30',
-        'tid': '0',
-        'pn': 1,
-        'keyword': '',
-        'order': 'pubdate',
-        'platform': 'web',
-        'web_location': '1550101',
-        'order_avoided': 'true',
-        'dm_img_list': '[]',
-        'dm_img_str': 'V2ViR0wgMS4wIChPcGVuR0wgRVMgMi4wIENocm9taXVtKQ',
-        'dm_cover_img_str': 'QU5HTEUgKEludGVsLCBJbnRlbChSKSBVSEQgR3JhcGhpY3MgNjMwICgweDAwMDAzRTkyKSBEaXJlY3QzRDExIHZzXzVfMCBwc181XzAsIEQzRDExKUdvb2dsZSBJbmMuIChJbnRlbC',
-        'w_rid': "w_rid",
-        'wts': 1,
-    }
+USER_HOME_PAGEW_PARAM = {  # 顺序很重要
+    "dm_cover_img_str": "",
+    "dm_img_list": "",
+    'keyword': "",
+    "mid": "userId",
+    "order": "pubdate",
+    "order_avoided": "true",
+    "platform": "web",
+    "pn": "pcursor",
+    "ps": "30",
+    "tid": "0",
+    "web_location": "1550101",
+    "wts": "str(int(time.time()))",
+}

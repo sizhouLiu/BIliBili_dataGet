@@ -1,10 +1,10 @@
 """
 -*- coding : utf-8 -*-
-主要功能类
+数据获取功能类
 @Author : Stupid_Cat
 @Time : 2024/3/16 14:54
 """
-
+import random
 import requests
 import os
 import json
@@ -12,11 +12,13 @@ import time
 import pandas as pd
 import re
 import pymysql
+from retrying import retry
+
+import DefaulString
+from string_format import validateTitle,intToStrTime
 
 from time import sleep
 
-import DefaulString
-import encrtpy
 from DefaulString import DEFAULT_HEADERS,UP_VIDIO_DATA
 from encrtpy import get_w_rid,calculate_md5
 from BIlibiliupBV import get_up_video_data
@@ -27,16 +29,6 @@ class Spider(object):
     def __init__(self, Cookies):
         self.cookies = Cookies
         self.name = self.Cookies_name_get()
-
-    def validateTitle(self, title):
-        re_str = r"[\/\\\:\*\?\"\<\>\|]"  # '/ \ : * ? " < > |'
-        new_title = re.sub(re_str, "_", title)  # 替换为下划线
-        return new_title
-
-    def intToStrTime(self, a):
-        b = time.localtime(a)  # 转为日期字符串
-        c = time.strftime("%Y/%m/%d %H:%M:%S", b)  # 格式化字符串
-        return c
 
     def get_aid(self, bv):
         response = requests.get(url=f'https://www.bilibili.com/video/{bv}', headers=DEFAULT_HEADERS)
@@ -63,14 +55,13 @@ class Spider(object):
     def get_response(self, aid, page=1):
         video_info_url = 'https://api.bilibili.com/x/web-interface/archive/relation?aid={}'.format(aid)
 
-        res_json = requests.get(url=video_info_url, headers=DEFAULT_HEADERS, cookies=self.cookies).json()
-        print(res_json)
+        # res_json = requests.get(url=video_info_url, headers=DEFAULT_HEADERS, cookies=self.cookies).json()
+        # print(res_json)
         # like_count, coin_count, collection_count = res_json['data']['like'], res_json['data']['coin'], res_json['data']['favorite']
         # print(aid, title, like_count, coin_count, collection_count)
 
         comment_url = 'https://api.bilibili.com/x/v2/reply?callback=jQueryjsonp=jsonp&pn={}&type=1&oid={}&sort=2&_=1594459235799'
-
-        response = requests.get(url=comment_url.format(page, aid), headers=DEFAULT_HEADERS)
+        response = requests.get(url=comment_url.format(page, aid), headers=DEFAULT_HEADERS,cookies=DefaulString.COOKITES)
 
         return response
 
@@ -87,7 +78,7 @@ class Spider(object):
             print(bv)
             aid = self.get_aid(bv)
             title = self.get_title(bv)
-            title = self.validateTitle(title=title)
+            title = validateTitle(title=title)
             response = self.get_response(aid=aid)
 
             total_page = json.loads(response.text)['data']['page']['count'] // 20 + 1
@@ -105,7 +96,7 @@ class Spider(object):
                 for row in data:
                     print('根评论', row['member']['uname'], row['content']['message'])
                     is_root.append('是')
-                    times.append(self.intToStrTime(row['ctime']))
+                    times.append(intToStrTime(row['ctime']))
                     uname.append(row['member']['uname'])
                     comments.append(row['content']['message'])
                     likes.append(row['like'])
@@ -113,7 +104,7 @@ class Spider(object):
                     if row.get('replies'):
                         for crow in row['replies']:
                             is_root.append('否')
-                            times.append(self.intToStrTime(crow['ctime']))
+                            times.append(intToStrTime(crow['ctime']))
                             uname.append(crow['member']['uname'])
                             comments.append(crow['content']['message'])
                             likes.append(crow['like'])
@@ -162,11 +153,12 @@ class Spider(object):
             ValueError("传入的类型不是list")
         if not bvs:
             ValueError("未传入正确的Bv列表")
+        count = 0
         for bv in bvs:
             print(bv)
             aid = self.get_aid(bv)
             title = self.get_title(bv)
-            title = self.validateTitle(title=title)
+            title = validateTitle(title=title)
             print(title)
             response = self.get_response(aid=aid)
 
@@ -185,31 +177,32 @@ class Spider(object):
                 for row in data:
                     print('根评论', row['member']['uname'], row['content']['message'])
                     is_root.append('是')
-                    times.append(self.intToStrTime(row['ctime']))
+                    times.append(intToStrTime(row['ctime']))
                     uname.append(row['member']['uname'])
                     comments.append(row['content']['message'])
                     likes.append(row['like'])
+                    count+=1
                     self.__insert_toDB(title=title, row=row, type="root")
                     if row.get('replies'):
                         for crow in row['replies']:
                             is_root.append('否')
-                            times.append(self.intToStrTime(crow['ctime']))
+                            times.append(intToStrTime(crow['ctime']))
                             uname.append(crow['member']['uname'])
                             comments.append(crow['content']['message'])
                             likes.append(crow['like'])
                             print(crow)
                             self.__insert_toDB(title=title,row=row,crow=crow)
                             print('---子评论', crow['member']['uname'], crow['content']['message'])
-
+                            count+=1
                 page += 1
                 if page > total_page:
                     break
-                sleep(1)
+                sleep(1.5)
                 response = self.get_response(page=page, aid=aid)
 
-                # print(f'\n\n已经保存 {df.shape[0]} 条评论到')F
+                print(f'\n\n已经保存 {count} 条评论到bilibilicommentdb')
 
-                sleep(1)
+
 
             # 每抓完 1 条视频的评论休眠 10s
             sleep(10)
@@ -226,7 +219,7 @@ class Spider(object):
                                 TIME, UNAME,LIKECOUNT,COMMENTS)\
                                 VALUES ('%s', '%s', '%s', '%s','%s')" % (
                 title,
-                self.intToStrTime(row['ctime']),
+                intToStrTime(row['ctime']),
                 row['member']['uname'],
                 row['like'],
                 row['content']['message'])
@@ -244,7 +237,7 @@ class Spider(object):
                                         VALUES ('%s', '%s', '%s', '%s','%s')" % (
 
                 title,
-                self.intToStrTime(crow["crow"]['ctime']),
+                intToStrTime(crow["crow"]['ctime']),
                 crow["crow"]['member']['uname'],
                 crow["crow"]['like'],
                 crow["crow"]['content']['message'])
@@ -273,10 +266,11 @@ class Spider(object):
             danmaku.append(data["stat"]["danmaku"])
 
         else:
-            # print(title,rating,bofangliang,danmaku)
+            print(title,rating,bofangliang,danmaku)
             df = pd.DataFrame(
                 {'番名': title, '评分': rating, '播放量': bofangliang, '弹幕数': danmaku})
             df.to_csv(f'BilibiliTOP50.csv', encoding='utf-8-sig', index=False)
+
 
     def get_upvideo_bv(self,mid,page=1,max_page=3):
         """
@@ -288,17 +282,6 @@ class Spider(object):
         """
         # TODO: 可以使用 但是代码不够规范 需要调整
 
-        # date_time = int(time.time())
-        # url = 'https://api.bilibili.com/x/space/wbi/arc/search'
-
-        # data = UP_VIDIO_DATA
-        # data["w_rid"] = get_w_rid(date_time=date_time,page=page)
-        # data["wts"] = date_time
-        # data["pn"] = page
-        # data["mid"] = mid
-        # response = requests.get(url=url, params=data, headers=DEFAULT_HEADERS, cookies=Cookies).json()
-        # print(response)
-        # print(response["data"]["list"]["vlist"])
         return [[video["title"],video["bvid"],video["comment_num"],video["play_num"]] for video in get_up_video_data(mid,pcursor=1,max_list_page=max_page)]
 
     def history_title_get(self, data_count=1200):
@@ -354,6 +337,7 @@ class Spider(object):
 
 
 class SpiderDB(Spider):
+    # TODO：我想着写一个专门做数据库存储的类 没想好怎么写
     def __init__(self,
                  database="Mysql",
                  user=None,
@@ -371,10 +355,11 @@ if __name__ == '__main__':
     pachong = Spider(Cookies=DefaulString.COOKITES)
 
     # pachong.get_Comment_to_DataBase(bvs)
-    pachong.get_Comment_tocsv(bvs)
+    # pachong.get_Comment_tocsv(bvs)
     # pachong.get_bangumidata()
     # pachong.history_title_get()
-    a = pachong.get_upvideo_bv(245645656,page=1,max_page=6)
+    a = pachong.get_upvideo_bv(245645656,page=2,max_page=6)
     for i in a:
+        print(a)
         print([i[1]])
         pachong.get_Comment_tocsv([i[1]])

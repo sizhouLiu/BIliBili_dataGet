@@ -7,8 +7,9 @@
 
 
 import hashlib
+import random
 import time
-
+import base64
 
 def calculate_md5(string):
     # 通过hashlib模块创建了一个MD5哈希算法的实例
@@ -17,6 +18,26 @@ def calculate_md5(string):
     md5_hash.update(string.encode('utf-8'))
     # 计算得到的MD5哈希值的十六进制表示
     return md5_hash.hexdigest()
+
+def base64_encode(encoded_str, encode='utf-8'):
+    """
+    Base64解密函数
+    :param encoded_str: Base64编码的字符串
+    :return: 原始的二进制数据
+    """
+    encoded_str = encoded_str.encode(encode)
+    encoded_str = base64.b64encode(encoded_str)
+    encoded_str = encoded_str.decode()
+    return encoded_str.strip('=')
+
+
+def get_dm_cover_img_str(num=650):
+    num = random.randrange(350, 651)
+    sss = f'ANGLE (Intel Inc., Intel(R) Iris(TM) Plus Graphics {num}, OpenGL 4.1)Google Inc. (Intel Inc.)'
+    dm_cover_img_str = base64_encode(sss)
+    return dm_cover_img_str
+
+
 def get_w_rid(date_time,page=1):
     # date_time = int(time.time())
     f = [
