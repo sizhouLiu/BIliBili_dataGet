@@ -27,6 +27,9 @@ class Spider(object):
         self.cookies = Cookies
         self.name = self.Cookies_name_get()
 
+    def __del__(self):
+        print("爬取结束！")
+
     def get_cookies(self):
         cookies = requests.get("https://www.bilibili.com/", headers=DEFAULT_HEADERS).cookies
         return cookies
@@ -40,6 +43,7 @@ class Spider(object):
             print(json_data['error']['message'])
             return Exception("错误")
         return json_data
+
     def get_aid(self, json_data):
         aid = json_data['aid']
         return aid
@@ -228,6 +232,7 @@ class Spider(object):
             df = pd.DataFrame(
                 {'番名': title, '评分': rating, '播放量': bofangliang, '弹幕数': danmaku})
             df.to_csv(f'BilibiliTOP50.csv', encoding='utf-8-sig', index=False)
+
     def get_Search_videos(self,keyword="原神",search_type="video",order="totalrank",page=1):
         """
         该函数用于获取B站搜索视频的bv号标题等数据
@@ -340,7 +345,7 @@ class Spider(object):
 
 
 class SpidertoDB():
-    # TODO：我想着写一个专门做数据库存储的类 没想好怎么写
+    # TODO：我想着写一个专门做数据库存储的类 没想好怎么写阿（＞人＜；）
     def __init__(self,
                  database="",
                  user=None,
@@ -412,8 +417,7 @@ class SpidertoDB():
             cursor.execute(sql)
 
     def delete_Redundant_data(self):
-        # TODO: 去除重复数据 把我的表给清空了 暂时搁置
-
+        # TODO: 去除重复数据 SQL语句条件判断错误把我的表给清空了 暂时搁置阿(´。＿。｀)
 
         pass
         # sql = """DELETE FROM BiliBilicomment WHERE ;"""
