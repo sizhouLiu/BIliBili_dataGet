@@ -53,20 +53,21 @@ COOKITES = {
     "FEED_LIVE_VERSION": "V8",
     "CURRENT_QUALITY": "116",
     "home_feed_column": "5",
-    "fingerprint": "6a659a99af62e24c509eb9b46a1f4192",
-    "buvid_fp": "2e8642a611476715b4f4f48c3ecee59e",
-    "bsource": "search_bing",
-    "bili_ticket": "eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTA4Mjk0NjksImlhdCI6MTcxMDU3MDIwOSwicGx0IjotMX0.uglFonp9oJucna1h9NfyJ9_Tg_HDvqQ5e6JZ9dr5dkw",
-    "bili_ticket_expires": "1710829409",
-    "SESSDATA": "a67e3555%2C1726124211%2C4cc68%2A31CjAK3u3Xj4EJOT34UyC7tRV_g6wIyRyzay_3aCjx1ajS_XTQqiGPtSkyPdHtJuE25qsSVno4OEpYNzRmQUhkeVNJaldPTTZXMEVJajMtLXh4czk1UnRxWEh6eG0wYjZCQWN6eVM0bDNEYy1vQlFUYkJtWnlZREhIcGlyeWZEZzdzX2t0U192OXJ3IIEC",
-    "bili_jct": "c5db9d38b933dadc4f45ecec48bf5730",
     "DedeUserID": "32347153",
     "DedeUserID__ckMd5": "6e20d89c04c0aaaa",
-    "sid": "86a6m9ac",
-    "bp_video_offset_32347153": "909390566814384166",
-    "b_lsid": "64B48255_18E4641B361",
-    "browser_resolution": "1706-924",
-    "PVID": "3"
+    "LIVE_BUVID": "AUTO5017107285696779",
+    "bsource": "search_bing",
+    "bili_ticket": "eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTEwODcxMTAsImlhdCI6MTcxMDgyNzg1MCwicGx0IjotMX0.qeUkW0vfYq4sExzg_LmOW8GVpIV5CCZzJ-LUEhmOAIM",
+    "bili_ticket_expires": "1711087050",
+    "b_lsid": "7E6EA7103_18E568D5932",
+    "PVID": "1",
+    "browser_resolution": "1707-426",
+    "SESSDATA": "a1363d04%2C1726401265%2C8a015%2A32CjB6f4qAbVTIQi-gypB1lRAv-H260jGxcqFM6zOPozg6gqQ_OluDei4VZjbBBvgANdkSVkJOMDFabjBGQTVvOXBwUnlNZ2VqSEJ3eHpJQ2tVOXZuVjh1T1ZCQ0JiNVVEcjV4ZEJfR2ZsZzhRNUQ1Z0Q1WmJCMG5wYlZuaXppSVlvaGF1U29ibk5RIIEC",
+    "bili_jct": "86061f88d3c10251b73b7c934e07c396",
+    "fingerprint": "2e8642a611476715b4f4f48c3ecee59e",
+    "bp_video_offset_32347153": "910583476810416195",
+    "sid": "ml58ypqq",
+    "buvid_fp": "2e8642a611476715b4f4f48c3ecee59e"
 }
 
 USER_HOME_PAGEW_PARAM = {  # 顺序很重要
