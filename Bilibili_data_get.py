@@ -131,24 +131,8 @@ class Spider(object):
 
     def get_Comment_to_DataBase(self, bvs):
 
-        db = pymysql.connect(host="localhost",
-                             user="root",
-                             password="vs8824523",
-                             database="bilibilicommentdb")
-
-        cursor = db.cursor()
-        cursor.execute("SHOW TABLES")
-        tables = cursor.fetchall()
-
-        if ("bilibilicommentdb",) not in tables:
-            sql = """CREATE TABLE IF NOT EXISTS BiliBilicomment (
-                          TITLE CHAR(50) NOT NULL,
-                          TIME  TIMESTAMP,
-                          UNAME CHAR(24),
-                          LIKECOUNT BIGINT,
-                          COMMENTS TEXT)"""
-            cursor.execute(sql)
-
+        toDB = SpidertoDB()
+        toDB.create_table()
         if not isinstance(bvs, list):
             ValueError("传入的类型不是list")
         if not bvs:
@@ -166,7 +150,7 @@ class Spider(object):
             page = 1
             is_root, uname, comments, times, likes = [], [], [], [], []
             while True:
-                print(response.text)
+                # print(response.text)
                 data = json.loads(response.text)['data']['replies']
                 if not data:
                     data = json.loads(response.text)['data']
@@ -182,7 +166,7 @@ class Spider(object):
                     comments.append(row['content']['message'])
                     likes.append(row['like'])
                     count+=1
-                    self.__insert_toDB(title=title, row=row, type="root")
+                    toDB.insert_toDB(title=title, row=row, type="root")
                     if row.get('replies'):
                         for crow in row['replies']:
                             is_root.append('否')
@@ -190,8 +174,8 @@ class Spider(object):
                             uname.append(crow['member']['uname'])
                             comments.append(crow['content']['message'])
                             likes.append(crow['like'])
-                            print(crow)
-                            self.__insert_toDB(title=title,row=row,crow=crow)
+
+                            toDB.insert_toDB(title=title,row=crow)
                             print('---子评论', crow['member']['uname'], crow['content']['message'])
                             count+=1
                 page += 1
@@ -202,53 +186,54 @@ class Spider(object):
 
                 print(f'\n\n已经保存 {count} 条评论到bilibilicommentdb')
 
-
-
             # 每抓完 1 条视频的评论休眠 10s
             sleep(10)
 
-    def __insert_toDB(self,title,row,type=None,**crow):
-        db = pymysql.connect(host="localhost",
-                             user="root",
-                             password="vs8824523",
-                             database="bilibilicommentdb")
-
-        cursor = db.cursor()
-        if type == "root":
-            insert = "INSERT INTO bilibilicomment(TITLE,\
-                                TIME, UNAME,LIKECOUNT,COMMENTS)\
-                                VALUES ('%s', '%s', '%s', '%s','%s')" % (
-                title,
-                intToStrTime(row['ctime']),
-                row['member']['uname'],
-                row['like'],
-                row['content']['message'])
-            try:
-                db.begin()
-                cursor.execute(insert)
-                db.commit()
-            except Exception as e:
-                db.rollback()
-                print(e)
-        else:
-
-            insert = "INSERT INTO bilibilicomment(TITLE,\
-                                        TIME, UNAME,LIKECOUNT,COMMENTS)\
-                                        VALUES ('%s', '%s', '%s', '%s','%s')" % (
-
-                title,
-                intToStrTime(crow["crow"]['ctime']),
-                crow["crow"]['member']['uname'],
-                crow["crow"]['like'],
-                crow["crow"]['content']['message'])
-            try:
-                db.begin()
-                cursor.execute(insert)
-                db.commit()
-            except Exception as e:
-                db.rollback()
-                print(e)
-
+    # def __insert_toDB(self,title,row,type=None):
+    """
+        已废弃 挪到了SpiderDB类中
+    """
+    #     db = pymysql.connect(host="localhost",
+    #                          user="root",
+    #                          password="vs8824523",
+    #                          database="bilibilicommentdb")
+    #
+    #     cursor = db.cursor()
+    #     if type == "root":
+    #         insert = "INSERT INTO bilibilicomment(TITLE,\
+    #                             TIME, UNAME,LIKECOUNT,COMMENTS)\
+    #                             VALUES ('%s', '%s', '%s', '%s','%s')" % (
+    #             title,
+    #             intToStrTime(row['ctime']),
+    #             row['member']['uname'],
+    #             row['like'],
+    #             row['content']['message'])
+    #         try:
+    #             db.begin()
+    #             cursor.execute(insert)
+    #             db.commit()
+    #         except Exception as e:
+    #             db.rollback()
+    #             print(e)
+    #     else:
+    #
+    #         insert = "INSERT INTO bilibilicomment(TITLE,\
+    #                                     TIME, UNAME,LIKECOUNT,COMMENTS)\
+    #                                     VALUES ('%s', '%s', '%s', '%s','%s')" % (
+    #
+    #             title,
+    #             intToStrTime(row["crow"]['ctime']),
+    #             row["crow"]['member']['uname'],
+    #             row["crow"]['like'],
+    #             row["crow"]['content']['message'])
+    #         try:
+    #             db.begin()
+    #             cursor.execute(insert)
+    #             db.commit()
+    #         except Exception as e:
+    #             db.rollback()
+    #             print(e)
+    #
 
     def get_bangumidata(self):
         url = "https://api.bilibili.com/pgc/web/rank/list?day=3&season_type=1"
@@ -336,17 +321,67 @@ class Spider(object):
         return name
 
 
-class SpiderDB(Spider):
+class SpidertoDB():
     # TODO：我想着写一个专门做数据库存储的类 没想好怎么写
     def __init__(self,
-                 database="Mysql",
+                 database="bilibilicommentdb",
                  user=None,
                  password=None,
                  host="localhost"):
         self.database = database
+        self.user = user
+        self.password = password
+        self.host = host
+        self.db = pymysql.connect(host=self.host,
+                             user=self.user,
+                             password=self.password,
+                             database=self.database)
 
-        super()
+    def __insert_toDB_judge(self,insert):
+        try:
+            self.db.begin()
+            self.db.cursor().execute(insert)
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            print(e)
+    def insert_toDB(self, title, row, type=None):
+        if type == "root":
+            insert = "INSERT INTO bilibilicomment(TITLE,\
+                                   TIME, UNAME,LIKECOUNT,COMMENTS)\
+                                   VALUES ('%s', '%s', '%s', '%s','%s')" % (
+                title,
+                intToStrTime(row['ctime']),
+                row['member']['uname'],
+                row['like'],
+                row['content']['message'])
+            self.__insert_toDB_judge(insert)
+        else:
 
+            insert = "INSERT INTO bilibilicomment(TITLE,\
+                                           TIME, UNAME,LIKECOUNT,COMMENTS)\
+                                           VALUES ('%s', '%s', '%s', '%s','%s')" % (
+
+                title,
+                intToStrTime(row['ctime']),
+                row['member']['uname'],
+                row['like'],
+                row['content']['message'])
+            self.__insert_toDB_judge(insert)
+
+    def create_table(self):
+        cursor = self.db.cursor()
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+
+        if ("bilibilicommentdb",) not in tables:
+            sql = """CREATE TABLE IF NOT EXISTS BiliBilicomment (
+                          TITLE CHAR(50) NOT NULL,
+                          TIME  TIMESTAMP,
+                          UNAME CHAR(24),
+                          LIKECOUNT BIGINT,
+                          COMMENTS TEXT)"""
+            cursor.execute(sql)
 
 if __name__ == '__main__':
 
@@ -358,8 +393,7 @@ if __name__ == '__main__':
     # pachong.get_Comment_tocsv(bvs)
     # pachong.get_bangumidata()
     # pachong.history_title_get()
-    a = pachong.get_upvideo_bv(245645656,page=2,max_page=6)
+    a = pachong.get_upvideo_bv(1140672573,page=2,max_page=6)
     for i in a:
-        print(a)
         print([i[1]])
-        pachong.get_Comment_tocsv([i[1]])
+        pachong.get_Comment_to_DataBase([i[1]])
