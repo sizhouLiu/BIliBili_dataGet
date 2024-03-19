@@ -4,7 +4,7 @@
 @Author : Stupid_Cat
 @Time : 2024/3/16 14:54
 """
-import random
+
 import requests
 import os
 import json
@@ -12,15 +12,14 @@ import time
 import pandas as pd
 import re
 import pymysql
-from retrying import retry
+
 
 import DefaulString
-from string_format import validateTitle,intToStrTime
+from string_format import validateTitle, intToStrTime
 
 from time import sleep
 
-from DefaulString import DEFAULT_HEADERS,UP_VIDIO_DATA
-from encrtpy import get_w_rid,calculate_md5
+from DefaulString import DEFAULT_HEADERS
 from BIlibiliupBV import get_up_video_data
 
 
@@ -61,7 +60,8 @@ class Spider(object):
         # print(aid, title, like_count, coin_count, collection_count)
 
         comment_url = 'https://api.bilibili.com/x/v2/reply?callback=jQueryjsonp=jsonp&pn={}&type=1&oid={}&sort=2&_=1594459235799'
-        response = requests.get(url=comment_url.format(page, aid), headers=DEFAULT_HEADERS,cookies=DefaulString.COOKITES)
+        response = requests.get(url=comment_url.format(page, aid), headers=DEFAULT_HEADERS,
+                                cookies=DefaulString.COOKITES)
 
         return response
 
@@ -129,9 +129,8 @@ class Spider(object):
             # 每抓完 1 条视频的评论休眠 10s
             sleep(10)
 
-    def get_Comment_to_DataBase(self, bvs):
+    def get_Comment_to_DataBase(self, bvs,toDB):
 
-        toDB = SpidertoDB()
         toDB.create_table()
         if not isinstance(bvs, list):
             ValueError("传入的类型不是list")
@@ -165,7 +164,7 @@ class Spider(object):
                     uname.append(row['member']['uname'])
                     comments.append(row['content']['message'])
                     likes.append(row['like'])
-                    count+=1
+                    count += 1
                     toDB.insert_toDB(title=title, row=row, type="root")
                     if row.get('replies'):
                         for crow in row['replies']:
@@ -175,9 +174,9 @@ class Spider(object):
                             comments.append(crow['content']['message'])
                             likes.append(crow['like'])
 
-                            toDB.insert_toDB(title=title,row=crow)
+                            toDB.insert_toDB(title=title, row=crow)
                             print('---子评论', crow['member']['uname'], crow['content']['message'])
-                            count+=1
+                            count += 1
                 page += 1
                 if page > total_page:
                     break
@@ -189,51 +188,6 @@ class Spider(object):
             # 每抓完 1 条视频的评论休眠 10s
             sleep(10)
 
-    # def __insert_toDB(self,title,row,type=None):
-    """
-        已废弃 挪到了SpiderDB类中
-    """
-    #     db = pymysql.connect(host="localhost",
-    #                          user="root",
-    #                          password="vs8824523",
-    #                          database="bilibilicommentdb")
-    #
-    #     cursor = db.cursor()
-    #     if type == "root":
-    #         insert = "INSERT INTO bilibilicomment(TITLE,\
-    #                             TIME, UNAME,LIKECOUNT,COMMENTS)\
-    #                             VALUES ('%s', '%s', '%s', '%s','%s')" % (
-    #             title,
-    #             intToStrTime(row['ctime']),
-    #             row['member']['uname'],
-    #             row['like'],
-    #             row['content']['message'])
-    #         try:
-    #             db.begin()
-    #             cursor.execute(insert)
-    #             db.commit()
-    #         except Exception as e:
-    #             db.rollback()
-    #             print(e)
-    #     else:
-    #
-    #         insert = "INSERT INTO bilibilicomment(TITLE,\
-    #                                     TIME, UNAME,LIKECOUNT,COMMENTS)\
-    #                                     VALUES ('%s', '%s', '%s', '%s','%s')" % (
-    #
-    #             title,
-    #             intToStrTime(row["crow"]['ctime']),
-    #             row["crow"]['member']['uname'],
-    #             row["crow"]['like'],
-    #             row["crow"]['content']['message'])
-    #         try:
-    #             db.begin()
-    #             cursor.execute(insert)
-    #             db.commit()
-    #         except Exception as e:
-    #             db.rollback()
-    #             print(e)
-    #
 
     def get_bangumidata(self):
         url = "https://api.bilibili.com/pgc/web/rank/list?day=3&season_type=1"
@@ -251,13 +205,12 @@ class Spider(object):
             danmaku.append(data["stat"]["danmaku"])
 
         else:
-            print(title,rating,bofangliang,danmaku)
+            print(title, rating, bofangliang, danmaku)
             df = pd.DataFrame(
                 {'番名': title, '评分': rating, '播放量': bofangliang, '弹幕数': danmaku})
             df.to_csv(f'BilibiliTOP50.csv', encoding='utf-8-sig', index=False)
 
-
-    def get_upvideo_bv(self,mid,page=1,max_page=3):
+    def get_upvideo_bv(self, mid, page=1, max_page=3):
         """
 
         :param mid: up主的id号 视频空间连接上的数字
@@ -267,7 +220,8 @@ class Spider(object):
         """
         # TODO: 可以使用 但是代码不够规范 需要调整
 
-        return [[video["title"],video["bvid"],video["comment_num"],video["play_num"]] for video in get_up_video_data(mid,pcursor=1,max_list_page=max_page)]
+        return [[video["title"], video["bvid"], video["comment_num"], video["play_num"]] for video in
+                get_up_video_data(mid, pcursor=page, max_list_page=max_page)]
 
     def history_title_get(self, data_count=1200):
         """
@@ -293,7 +247,7 @@ class Spider(object):
                 view_at = a["view_at"]
             print(oid)
             time.sleep(1.5)
-        df = pd.DataFrame(tilte_data, columns=["tilte", "tag_name", "kid", "bvid"])
+        df = pd.DataFrame(tilte_data, columns=["title", "tag_name", "kid", "bvid"])
         df.to_csv(f"./个人信息/{self.name}的历史记录.csv")
 
     def favlist_title_get(self):
@@ -324,7 +278,7 @@ class Spider(object):
 class SpidertoDB():
     # TODO：我想着写一个专门做数据库存储的类 没想好怎么写
     def __init__(self,
-                 database="bilibilicommentdb",
+                 database="",
                  user=None,
                  password=None,
                  host="localhost"):
@@ -333,11 +287,11 @@ class SpidertoDB():
         self.password = password
         self.host = host
         self.db = pymysql.connect(host=self.host,
-                             user=self.user,
-                             password=self.password,
-                             database=self.database)
+                                  user=self.user,
+                                  password=self.password,
+                                  database=self.database)
 
-    def __insert_toDB_judge(self,insert):
+    def __insert_toDB_judge(self, insert):
         try:
             self.db.begin()
             self.db.cursor().execute(insert)
@@ -345,6 +299,7 @@ class SpidertoDB():
         except Exception as e:
             self.db.rollback()
             print(e)
+
     def insert_toDB(self, title, row, type=None):
         if type == "root":
             insert = "INSERT INTO bilibilicomment(TITLE,\
@@ -383,17 +338,21 @@ class SpidertoDB():
                           COMMENTS TEXT)"""
             cursor.execute(sql)
 
+
 if __name__ == '__main__':
 
     bvs = ["BV1Nx4y1D7XN"]
-
     pachong = Spider(Cookies=DefaulString.COOKITES)
 
-    # pachong.get_Comment_to_DataBase(bvs)
-    # pachong.get_Comment_tocsv(bvs)
-    # pachong.get_bangumidata()
-    # pachong.history_title_get()
-    a = pachong.get_upvideo_bv(1140672573,page=2,max_page=6)
+    user = "root"
+    password = "vs8824523"
+    host = "localhost"
+    database = "bilibilicommentdb"
+    toDB = SpidertoDB(user=user,
+                      password=password,
+                      host=host,
+                      database=database)
+    a = pachong.get_upvideo_bv(1140672573, page=2, max_page=6)
     for i in a:
         print([i[1]])
-        pachong.get_Comment_to_DataBase([i[1]])
+        pachong.get_Comment_to_DataBase([i[1]],toDB=toDB)
