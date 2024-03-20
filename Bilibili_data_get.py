@@ -450,7 +450,6 @@ class SpidertoDB():
         #
         # # 关闭数据库连接
         # self.db.close()
-
 if __name__ == '__main__':
 
     bvs = ["BV11f421f7ze"]
