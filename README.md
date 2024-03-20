@@ -2,7 +2,7 @@
 
 ------
 
-![image-20240320204432798](./img/img_1.png)
+<div stdle="text-align:center; display:table"><img src="./img/img_1.png"/><div>
 
 本项目为Stupid_Cat 不想看论文摸鱼时解决压力的产物，用于消磨自己的时间以及复习数据库知识以及编程能力。
 
