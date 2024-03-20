@@ -2,7 +2,8 @@
 
 ------
 
-<div style="text-align:center; display:table ;margin: 0 auto"><img src="./img/img_1.png" style="margin； 0 auto"/><div>
+<p align="center"><img src="./img/img_1.png" style="margin； 0 auto"/></p>
+
 
 
 本项目为Stupid_Cat 不想看论文摸鱼时解决压力的产物，用于消磨自己的时间以及复习数据库知识以及编程能力。
