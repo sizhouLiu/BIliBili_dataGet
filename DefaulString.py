@@ -5,7 +5,7 @@
 @Time : 2024/3/16 14:54
 """
 
-
+# 默认请求头
 DEFAULT_HEADERS  ={
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3970.5 Safari/537.36',
     'Referer': 'https://www.bilibili.com/',
@@ -70,6 +70,7 @@ COOKITES = {
     "buvid_fp": "2e8642a611476715b4f4f48c3ecee59e"
 }
 
+# 用户主页请求参数体
 USER_HOME_PAGEW_PARAM = {  # 顺序很重要
     "dm_cover_img_str": "",
     "dm_img_list": "",

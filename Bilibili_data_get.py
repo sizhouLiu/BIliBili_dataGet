@@ -35,6 +35,10 @@ class Spider(object):
         return cookies
 
     def get_jsondata(self,bv):
+        """
+        bv：bv号
+        return：评论的json格式
+        """
         response = requests.get(url=f'https://www.bilibili.com/video/{bv}', headers=DEFAULT_HEADERS)
         res = re.findall('<script>window.__INITIAL_STATE__=(.*)?;\(function\(\)', response.text, re.S)
 
@@ -80,6 +84,10 @@ class Spider(object):
         return response
 
     def get_Comment_tocsv(self, bvs):
+        """
+        bvs:BV号的列表
+        return: 无返回值 会生成一个以视频名命名的.csv数据
+        """
         save_folder = 'Comment'
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
@@ -96,9 +104,10 @@ class Spider(object):
             title = validateTitle(title=title)
             response = self.get_response(aid=aid)
 
+
             total_page = json.loads(response.text)['data']['page']['count'] // 20 + 1
             page = 1
-            is_root, uname, comments, times, likes = [], [], [], [], []
+            is_root, uname, comments, times, likes, sex = [], [], [], [], [], []
             while True:
                 # print(response.text)
                 data = json.loads(response.text)['data']['replies']
@@ -109,7 +118,8 @@ class Spider(object):
                     else:
                         break
                 for row in data:
-                    print('根评论', row['member']['uname'], row['content']['message'])
+                    print('根评论', row['member']['uname'], row['content']['message'],row['member']['sex'])
+                    sex.append(row['member']['sex'])
                     is_root.append('是')
                     times.append(intToStrTime(row['ctime']))
                     uname.append(row['member']['uname'])
@@ -119,6 +129,7 @@ class Spider(object):
                     if row.get('replies'):
                         for crow in row['replies']:
                             is_root.append('否')
+                            sex.append(crow['member']['sex'])
                             times.append(intToStrTime(crow['ctime']))
                             uname.append(crow['member']['uname'])
                             comments.append(crow['content']['message'])
@@ -134,7 +145,7 @@ class Spider(object):
                 # 边爬取边保存
                 df = pd.DataFrame(
                     {'评论时间': times, '评论者': uname, '评论内容': [''.join(comment.split()) for comment in comments],
-                     '点赞数': likes})
+                     '点赞数': likes,"性别":sex})
                 df.to_csv(f'{save_folder}/{title}.csv', encoding='utf-8-sig', index=False)
 
                 print(f'\n\n已经保存 {df.shape[0]} 条评论到 {save_folder}/{title}.csv\n\n')
@@ -359,6 +370,7 @@ class SpidertoDB():
                                   user=self.user,
                                   password=self.password,
                                   database=self.database)
+
     def __del__(self):
         """
         在类被回收时关闭连接
@@ -366,10 +378,10 @@ class SpidertoDB():
         print("数据库连接关闭")
         self.db.close()
 
-    def __insert_toDB_judge(self, insert):
+    def __sql_toDB_judge(self, sql):
         try:
             self.db.begin()
-            self.db.cursor().execute(insert)
+            self.db.cursor().execute(sql)
             self.db.commit()
         except Exception as e:
             self.db.rollback()
@@ -386,7 +398,7 @@ class SpidertoDB():
                 row['member']['uname'],
                 row['like'],
                 row['content']['message'])
-            self.__insert_toDB_judge(insert)
+            self.__sql_toDB_judge(insert)
         else:
 
             insert = "INSERT INTO bilibilicomment(TITLE,UPNAME,\
@@ -399,7 +411,7 @@ class SpidertoDB():
                 row['member']['uname'],
                 row['like'],
                 row['content']['message'])
-            self.__insert_toDB_judge(insert)
+            self.__sql_toDB_judge(insert)
 
     def create_table(self):
         cursor = self.db.cursor()
@@ -441,7 +453,7 @@ class SpidertoDB():
 
 if __name__ == '__main__':
 
-    bvs = ["BV1Ku4y1X7Yn"]
+    bvs = ["BV11f421f7ze"]
     pachong = Spider(Cookies=DefaulString.COOKITES)
 
     user = "root"
