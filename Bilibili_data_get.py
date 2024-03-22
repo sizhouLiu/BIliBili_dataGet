@@ -306,7 +306,7 @@ class Spider(object):
     def history_title_get(self, data_count=1200):
         """
            爬取历史记录并保存为csv文件
-           :data_count 爬取多少数据 最大为2000
+           :data_count 爬取多少数据 最大为1200
            :return: None
            """
         save_folder = '个人信息'
@@ -322,12 +322,14 @@ class Spider(object):
             all_jsondata = json_data["data"]["list"]
             for a in all_jsondata:
                 print([a["title"], a["tag_name"], a["kid"], a["view_at"]])
-                tilte_data.append([a["title"], a["tag_name"], a["kid"], a["history"]["bvid"]])
+                tilte_data.append([a["title"], a["tag_name"], a["kid"], a["history"]["bvid"], time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(a["view_at"]))])
                 oid = a["kid"]
                 view_at = a["view_at"]
             print(oid)
             time.sleep(1.5)
-        df = pd.DataFrame(tilte_data, columns=["title", "tag_name", "kid", "bvid"])
+        df = pd.DataFrame(tilte_data, columns=["title", "tag_name", "kid", "bvid","view_at"])
+        df.set_index("view_at")
+
         df.to_csv(f"./个人信息/{self.name}的历史记录.csv")
 
     def favlist_title_get(self):
@@ -463,7 +465,7 @@ if __name__ == '__main__':
                       password=password,
                       host=host,
                       database=database)
-    pachong.get_Comment_to_DataBase(bvs,toDB)
+    # pachong.get_Comment_to_DataBase(bvs,toDB)
     # toDB.delete_Redundant_data()
     # a = pachong.get_upvideo_bv(1140672573, page=3, max_page=6)
     # for i in a:
