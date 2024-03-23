@@ -31,6 +31,6 @@ def draw_heatmap(commit_data,username):
 
 if "__name__" == "__main__":
 
-    df = pd.read_csv("./个人信息/Stupid__Cat的历史记录.csv",index_col= 'view_at')
+    df = pd.read_csv("Stupid__Cat的历史记录.csv", index_col='view_at')
     df.index = pd.DatetimeIndex(df.index)
     draw_heatmap(df.resample("H").count()["title"],username="Stupid_Cat")

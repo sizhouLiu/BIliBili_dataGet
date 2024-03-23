@@ -23,7 +23,7 @@
 - pandas
 - pymysql
 - urllib
-- retrying
+
 - hashlib
 
 # 接口文档

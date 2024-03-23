@@ -17,8 +17,13 @@ password = "vs8824523"
 host = "localhost"
 database = "bilibilicommentdb"
 
+toDB = SpidertoDB(user=user,
+                  password=password,
+                  host=host,
+                  database=database)
 # pachong.get_Comment_tocsv(bvs)
-pachong.history_title_get()
+# pachong.history_title_get()
+pachong.history_data_get_toDB(data_count=1200,toDB=toDB)
 # toDB = SpidertoDB(user=user,
 #                   password=password,
 #                   host=host,

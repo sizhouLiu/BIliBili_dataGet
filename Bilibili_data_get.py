@@ -13,7 +13,6 @@ import pandas as pd
 import re
 import pymysql
 
-
 import DefaulString
 from string_format import validateTitle, intToStrTime
 from time import sleep
@@ -34,7 +33,7 @@ class Spider(object):
         cookies = requests.get("https://www.bilibili.com/", headers=DEFAULT_HEADERS).cookies
         return cookies
 
-    def get_jsondata(self,bv):
+    def get_jsondata(self, bv):
         """
         bv：bv号
         return：评论的json格式
@@ -53,21 +52,18 @@ class Spider(object):
         return aid
 
     def get_title(self, json_data):
-
         title = json_data['videoData']['title']
         return title
 
-    def get_upname(self,json_data):
+    def get_upname(self, json_data):
         name = json_data["videoData"]["owner"]["name"]
         print(name)
         return name
 
-
-    def get_desc(self,json_data):
+    def get_desc(self, json_data):
         desc = json_data["videoData"]["desc"]
         print(desc)
         return desc
-
 
     def get_response(self, aid, page=1):
         video_info_url = 'https://api.bilibili.com/x/web-interface/archive/relation?aid={}'.format(aid)
@@ -104,7 +100,6 @@ class Spider(object):
             title = validateTitle(title=title)
             response = self.get_response(aid=aid)
 
-
             total_page = json.loads(response.text)['data']['page']['count'] // 20 + 1
             page = 1
             is_root, uname, comments, times, likes, sex = [], [], [], [], [], []
@@ -118,7 +113,7 @@ class Spider(object):
                     else:
                         break
                 for row in data:
-                    print('根评论', row['member']['uname'], row['content']['message'],row['member']['sex'])
+                    print('根评论', row['member']['uname'], row['content']['message'], row['member']['sex'])
                     sex.append(row['member']['sex'])
                     is_root.append('是')
                     times.append(intToStrTime(row['ctime']))
@@ -145,7 +140,7 @@ class Spider(object):
                 # 边爬取边保存
                 df = pd.DataFrame(
                     {'评论时间': times, '评论者': uname, '评论内容': [''.join(comment.split()) for comment in comments],
-                     '点赞数': likes,"性别":sex})
+                     '点赞数': likes, "性别": sex})
                 df.to_csv(f'{save_folder}/{title}.csv', encoding='utf-8-sig', index=False)
 
                 print(f'\n\n已经保存 {df.shape[0]} 条评论到 {save_folder}/{title}.csv\n\n')
@@ -155,7 +150,7 @@ class Spider(object):
             # 每抓完 1 条视频的评论休眠 10s
             sleep(10)
 
-    def get_Comment_to_DataBase(self, bvs,toDB):
+    def get_Comment_to_DataBase(self, bvs, toDB):
         """
         bvs:BV号的列表
         toDB：一个SpiderDB实例用于数据存储
@@ -196,7 +191,7 @@ class Spider(object):
                     comments.append(row['content']['message'])
                     likes.append(row['like'])
                     count += 1
-                    toDB.insert_toDB(title=title, upname=upname, row=row, type="root")
+                    toDB.Comment_insert_toDB(title=title, upname=upname, row=row, type="root")
                     if row.get('replies'):
                         for crow in row['replies']:
                             is_root.append('否')
@@ -205,7 +200,7 @@ class Spider(object):
                             comments.append(crow['content']['message'])
                             likes.append(crow['like'])
 
-                            toDB.insert_toDB(title=title, upname=upname, row=crow)
+                            toDB.Comment_insert_toDB(title=title, upname=upname, row=crow)
                             print('---子评论', crow['member']['uname'], crow['content']['message'])
                             count += 1
                 page += 1
@@ -244,7 +239,7 @@ class Spider(object):
                 {'番名': title, '评分': rating, '播放量': bofangliang, '弹幕数': danmaku})
             df.to_csv(f'BilibiliTOP50.csv', encoding='utf-8-sig', index=False)
 
-    def get_Search_videos(self,keyword="原神",search_type="video",order="totalrank",page=1):
+    def get_Search_videos(self, keyword="原神", search_type="video", order="totalrank", page=1):
         """
         该函数用于获取B站搜索视频的bv号标题等数据
         page:页码
@@ -286,9 +281,10 @@ class Spider(object):
                   "search_type": search_type,
                   "order": order,
                   "page": page}
-        response = requests.get(url=url, params=params,cookies=self.cookies, headers=DEFAULT_HEADERS).json()
+        response = requests.get(url=url, params=params, cookies=self.cookies, headers=DEFAULT_HEADERS).json()
         json_datas = response["data"]["result"]
-        return [[json_data["bvid"],json_data["title"],json_data["play"],json_data["author"],json_data["arcurl"]]for json_data in json_datas]
+        return [[json_data["bvid"], json_data["title"], json_data["play"], json_data["author"], json_data["arcurl"]] for
+                json_data in json_datas]
 
     def get_upvideo_bv(self, mid, page=1, max_page=3):
         """
@@ -303,34 +299,52 @@ class Spider(object):
         return [[video["title"], video["bvid"], video["comment_num"], video["play_num"]] for video in
                 get_up_video_data(mid, pcursor=page, max_list_page=max_page)]
 
+    def history_json_data_get(self, oid="0", view_at="0"):
+
+        url = f"https://api.bilibili.com/x/web-interface/history/cursor?max={oid}&view_at={view_at}&business=archive"
+        json_data = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
+        all_jsondata = json_data["data"]["list"]
+        return all_jsondata
+
     def history_title_get(self, data_count=1200):
         """
-           爬取历史记录并保存为csv文件
-           :data_count 爬取多少数据 最大为1200
-           :return: None
-           """
+       爬取历史记录并保存为csv文件
+       :data_count 爬取多少数据 最大为1200
+       :return: None
+       """
         save_folder = '个人信息'
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
-        oid = "0"
-        view_at = "0"
         tilte_data = []
+        all_jsondata = self.history_json_data_get()
         for i in range(data_count // 20):
-            print(f"上面的{oid}")
-            url = f"https://api.bilibili.com/x/web-interface/history/cursor?max={oid}&view_at={view_at}&business=archive"
-            json_data = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
-            all_jsondata = json_data["data"]["list"]
             for a in all_jsondata:
                 print([a["title"], a["tag_name"], a["kid"], a["view_at"]])
-                tilte_data.append([a["title"], a["tag_name"], a["kid"], a["history"]["bvid"], time.strftime("%Y-%m-%d %H:%M:%S",time.localtime(a["view_at"]))])
+                tilte_data.append([a["title"], a["tag_name"], a["kid"], a["history"]["bvid"],
+                                   time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a["view_at"]))])
                 oid = a["kid"]
                 view_at = a["view_at"]
             print(oid)
             time.sleep(1.5)
-        df = pd.DataFrame(tilte_data, columns=["title", "tag_name", "kid", "bvid","view_at"])
+            all_jsondata = self.history_json_data_get(oid=oid, view_at=view_at)
+
+        df = pd.DataFrame(tilte_data, columns=["title", "tag_name", "kid", "bvid", "view_at"])
         df.set_index("view_at")
 
         df.to_csv(f"./个人信息/{self.name}的历史记录.csv")
+
+    def history_data_get_toDB(self, data_count, toDB):
+        all_jsondata = self.history_json_data_get()
+        for i in range(data_count // 20):
+            for a in all_jsondata:
+                print([a["title"], a["tag_name"], a["kid"], a["view_at"]])
+                toDB.history_insert_toDB([a["title"], a["tag_name"], a["kid"], a["history"]["bvid"],
+                                          time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(a["view_at"]))])
+                oid = a["kid"]
+                view_at = a["view_at"]
+            print(oid)
+            time.sleep(1.5)
+            all_jsondata = self.history_json_data_get(oid=oid, view_at=view_at)
 
     def favlist_title_get(self):
         save_folder = '个人信息'
@@ -389,7 +403,8 @@ class SpidertoDB():
             self.db.rollback()
             print(e)
 
-    def insert_toDB(self, title, upname, row, type=None):
+    def Comment_insert_toDB(self, title, upname, row, type=None):
+        self.create_table()
         if type == "root":
             insert = "INSERT INTO bilibilicomment(TITLE,UPNAME,\
                                    TIME, UNAME,LIKECOUNT,COMMENTS)\
@@ -415,12 +430,21 @@ class SpidertoDB():
                 row['content']['message'])
             self.__sql_toDB_judge(insert)
 
+    def history_insert_toDB(self, history_Data):
+        self.create_history_data_table()
+        insert = "INSERT INTO BiliBilihistory(TITLE,TAGNAME,\
+                                         KID, BVID,VIEW_AT)\
+                                         VALUES ('%s', '%s', '%s', '%s', '%s')" % \
+                 (history_Data[0], history_Data[1], history_Data[2], history_Data[3], history_Data[4])
+
+        self.__sql_toDB_judge(insert)
+
     def create_table(self):
         cursor = self.db.cursor()
         cursor.execute("SHOW TABLES")
         tables = cursor.fetchall()
 
-        if ("bilibilicommentdb",) not in tables:
+        if ("bilibilicomment",) not in tables:
             sql = """CREATE TABLE IF NOT EXISTS BiliBilicomment (
                           TITLE CHAR(50) NOT NULL,
                           UPNAME CHAR(40) NOT NULL,
@@ -428,6 +452,19 @@ class SpidertoDB():
                           UNAME CHAR(24),
                           LIKECOUNT BIGINT,
                           COMMENTS TEXT)"""
+            cursor.execute(sql)
+
+    def create_history_data_table(self):
+        cursor = self.db.cursor()
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+        if ("bilibilihistory",) not in tables:
+            sql = """CREATE TABLE IF NOT EXISTS BiliBilihistory (
+                          TITLE CHAR(50) NOT NULL,
+                          TAGNAME CHAR(20) NOT NULL,
+                          KID char(13),
+                          BVID CHAR(24),
+                          VIEW_AT timestamp)"""
             cursor.execute(sql)
 
     def delete_Redundant_data(self):
@@ -452,8 +489,9 @@ class SpidertoDB():
         #
         # # 关闭数据库连接
         # self.db.close()
-if __name__ == '__main__':
 
+
+if __name__ == '__main__':
     bvs = ["BV11f421f7ze"]
     pachong = Spider(Cookies=DefaulString.COOKITES)
 
@@ -465,11 +503,4 @@ if __name__ == '__main__':
                       password=password,
                       host=host,
                       database=database)
-    # pachong.get_Comment_to_DataBase(bvs,toDB)
-    # toDB.delete_Redundant_data()
-    # a = pachong.get_upvideo_bv(1140672573, page=3, max_page=6)
-    # for i in a:
-    #     print([i[1]])
-    #     pachong.get_Comment_to_DataBase([i[1]],toDB=toDB)
-    #     sleep(10)
-    # pachong.get_Search_videos()
+    toDB.get_first_Data()
