@@ -317,7 +317,7 @@ class Spider(object):
             os.mkdir(save_folder)
         tilte_data = []
         all_jsondata = self.history_json_data_get()
-        for i in range(data_count // 20):
+        for i in range(data_count//20):
             for a in all_jsondata:
                 print([a["title"], a["tag_name"], a["kid"], a["view_at"]])
                 tilte_data.append([a["title"], a["tag_name"], a["kid"], a["history"]["bvid"],
@@ -331,7 +331,7 @@ class Spider(object):
         df = pd.DataFrame(tilte_data, columns=["title", "tag_name", "kid", "bvid", "view_at"])
         df.set_index("view_at")
 
-        df.to_csv(f"./个人信息/{self.name}的历史记录.csv")
+        df.to_csv(f"./个人信息/{self.name}的历史记录.csv",encoding="utf-8-sig")
 
     def history_data_get_toDB(self, data_count, toDB):
         all_jsondata = self.history_json_data_get()
@@ -350,19 +350,30 @@ class Spider(object):
         save_folder = '个人信息'
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
-        tilte_data = []
-        for i in range(11):
-            url = f"https://api.bilibili.com/x/v3/fav/resource/list?media_id=87591453&pn={i}&ps=20&keyword=&order=mtime&type=0&tid=0&platform=web"
-            jsondata = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
-            alldata = jsondata["data"]["medias"]
-            for i in alldata:
-                tilte_data.append([i["title"], i["intro"]])
-                # print(i["title"], i["intro"])
-        df = pd.DataFrame(tilte_data, columns=["tilte", "intro"])
-        df.to_csv(f"./个人信息/{self.name}的收藏夹.csv")
+
+        favlist_url = f"https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=2024972081"
+        response = json.loads(requests.get(url=favlist_url,cookies=self.cookies,headers=DEFAULT_HEADERS).text)
+        print(response)
+        favlist_names= response["data"]["list"]
+        for favlist_name in favlist_names:
+            tilte_data = []
+            favlist_title = favlist_name["id"]
+            media_count = favlist_name["media_count"]
+            for i in range((media_count//20) + 1):
+                url = f"https://api.bilibili.com/x/v3/fav/resource/list?media_id={favlist_title}&pn={i}&ps=20&keyword=&order=mtime&type=0&tid=0&platform=web"
+                jsondata = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
+                print(jsondata)
+                alldata = jsondata["data"]["medias"]
+                sleep(0.5)
+                for i in alldata:
+                    tilte_data.append([i["title"], i["intro"],i["bvid"]])
+                    # print(i["title"], i["intro"])
+
+            df = pd.DataFrame(tilte_data, columns=["tilte", "intro","bvid"])
+            a = favlist_name["title"]
+            df.to_csv(f"./个人信息/{self.name}的{a}收藏夹.csv")
 
     def Cookies_name_get(self):
-        # DedeUserID = self.cookies["DedeUserID"]
         # url = f"https://space.bilibili.com/{DedeUserID}"
         # print(requests.get("https://api.bilibili.com/x/space/v2/myinfo?",cookies=self.cookies,headers=DEFAULT_HEADERS).text)
         response = json.loads(requests.get("https://api.bilibili.com/x/space/v2/myinfo?", cookies=self.cookies,

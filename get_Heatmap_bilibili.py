@@ -6,8 +6,8 @@ import pandas as pd
 
 
 def draw_heatmap(commit_data,username):
-    dates = commit_data.index
 
+    dates = commit_data.index
     # 创建矩阵
     heatmap = np.zeros((24, 30))
     for i, date in enumerate(dates):
@@ -28,9 +28,11 @@ def draw_heatmap(commit_data,username):
     plt.xlabel("Day")
     plt.ylabel("hour")
     plt.show()
+    # plt.savefig()
 
-if "__name__" == "__main__":
+if __name__ == '__main__':
 
-    df = pd.read_csv("Stupid__Cat的历史记录.csv", index_col='view_at')
+    df = pd.read_csv("./个人信息/沐风喜雨的历史记录.csv", index_col='view_at')
     df.index = pd.DatetimeIndex(df.index)
-    draw_heatmap(df.resample("H").count()["title"],username="Stupid_Cat")
+    print(df.resample("H").count()["title"].to_csv("牛牛.csv",encoding="utf-8-sig"))
+    # draw_heatmap(df.resample("H").count()["title"],username="沐风")
