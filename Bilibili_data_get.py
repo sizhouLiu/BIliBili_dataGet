@@ -12,6 +12,7 @@ import time
 import pandas as pd
 import re
 import pymysql
+import qrcode
 
 import DefaulString
 from string_format import validateTitle, intToStrTime
@@ -23,15 +24,45 @@ from BIlibiliupBV import get_up_video_data
 class Spider(object):
 
     def __init__(self, Cookies):
-        self.cookies = Cookies
-        self.name = self.Cookies_name_get()
+        # self.name = self.Cookies_name_get()
+        self.session = requests.session()
+        self.cookies = self.session.cookies
 
     def __del__(self):
         print("爬取结束！")
 
     def get_cookies(self):
-        cookies = requests.get("https://www.bilibili.com/", headers=DEFAULT_HEADERS).cookies
-        return cookies
+        self.session.get("https://www.bilibili.com/", headers=DEFAULT_HEADERS)
+        print(self.session.cookies)
+        # return cookies
+
+    def Login(self):
+        url = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
+        response = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
+        data = response["data"]["qrcode_key"]
+        login_url = response["data"]["url"]
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_Q,
+            box_size=10,
+            border=4,
+        )
+        # 将链接添加到QRCode对象中
+        qr.add_data(login_url)
+        qr.make(fit=True)
+        # 生成QRCode图像
+        img = qr.make_image(fill_color="black", back_color="white")
+        # 保存生成的二维码图像
+        img.save("link_qrcode.png")
+        # 显示生成的二维码图像
+        img.show()
+        params = {
+            "qrcode_key": data
+        }
+        weblogin_url = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
+        # print(requests.get(url=weblogin_url,params=params,cookies=self.cookies,headers=DEFAULT_HEADERS).text)
+        self.session.get(url=weblogin_url, params=params, cookies=self.cookies, headers=DEFAULT_HEADERS)
+        print(self.session.cookies)
 
     def get_jsondata(self, bv):
         """
@@ -306,6 +337,16 @@ class Spider(object):
         all_jsondata = json_data["data"]["list"]
         return all_jsondata
 
+    def hot_video_get(self, pn=1):
+        """
+        B站热门 看人下菜
+        Cookies不同热门列表也不同
+        """
+        url = "https://api.bilibili.com/x/web-interface/popular"
+        parms = {"pn": pn,
+                 }
+        print(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
+
     def history_title_get(self, data_count=1200):
         """
        爬取历史记录并保存为csv文件
@@ -317,7 +358,7 @@ class Spider(object):
             os.mkdir(save_folder)
         tilte_data = []
         all_jsondata = self.history_json_data_get()
-        for i in range(data_count//20):
+        for i in range(data_count // 20):
             for a in all_jsondata:
                 print([a["title"], a["tag_name"], a["kid"], a["view_at"]])
                 tilte_data.append([a["title"], a["tag_name"], a["kid"], a["history"]["bvid"],
@@ -331,7 +372,7 @@ class Spider(object):
         df = pd.DataFrame(tilte_data, columns=["title", "tag_name", "kid", "bvid", "view_at"])
         df.set_index("view_at")
 
-        df.to_csv(f"./个人信息/{self.name}的历史记录.csv",encoding="utf-8-sig")
+        df.to_csv(f"./个人信息/{self.name}的历史记录.csv", encoding="utf-8-sig")
 
     def history_data_get_toDB(self, data_count, toDB):
         all_jsondata = self.history_json_data_get()
@@ -352,24 +393,24 @@ class Spider(object):
             os.mkdir(save_folder)
 
         favlist_url = f"https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=2024972081"
-        response = json.loads(requests.get(url=favlist_url,cookies=self.cookies,headers=DEFAULT_HEADERS).text)
+        response = json.loads(requests.get(url=favlist_url, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
         print(response)
-        favlist_names= response["data"]["list"]
+        favlist_names = response["data"]["list"]
         for favlist_name in favlist_names:
             tilte_data = []
             favlist_title = favlist_name["id"]
             media_count = favlist_name["media_count"]
-            for i in range((media_count//20) + 1):
+            for i in range((media_count // 20) + 1):
                 url = f"https://api.bilibili.com/x/v3/fav/resource/list?media_id={favlist_title}&pn={i}&ps=20&keyword=&order=mtime&type=0&tid=0&platform=web"
                 jsondata = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
                 print(jsondata)
                 alldata = jsondata["data"]["medias"]
                 sleep(0.5)
                 for i in alldata:
-                    tilte_data.append([i["title"], i["intro"],i["bvid"]])
+                    tilte_data.append([i["title"], i["intro"], i["bvid"]])
                     # print(i["title"], i["intro"])
 
-            df = pd.DataFrame(tilte_data, columns=["tilte", "intro","bvid"])
+            df = pd.DataFrame(tilte_data, columns=["tilte", "intro", "bvid"])
             a = favlist_name["title"]
             df.to_csv(f"./个人信息/{self.name}的{a}收藏夹.csv")
 
