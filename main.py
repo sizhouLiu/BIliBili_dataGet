@@ -45,7 +45,7 @@ c = {
     "CURRENT_QUALITY": "80",
     "bili_ticket": "eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE0MjU3ODMsImlhdCI6MTcxMTE2NjUyMywicGx0IjotMX0.Xm_VfPqQc8KcNi5RBcWed_dvIZbcuZNzwshB7TxXsqo"
 }
-pachong = Spider(Cookies=COOKITES)
+pachong = Spider()
 
 user = "root"
 password = "vs8824523"
@@ -62,9 +62,9 @@ toDB = SpidertoDB(user=user,
 # pachong.history_title_get()
 # pachong.favlist_title_get()
 # pachong.hot_video_get()
-# pachong.Login()
-# pachong.favlist_title_get()
-pachong.get_bangumidata()
+# pachong.__Login()
+pachong.favlist_title_get()
+# pachong.get_bangumidata()
 # toDB = SpidertoDB(user=user,
 #                   password=password,
 #                   host=host,

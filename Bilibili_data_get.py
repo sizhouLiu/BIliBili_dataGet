@@ -23,10 +23,12 @@ from BIlibiliupBV import get_up_video_data
 
 class Spider(object):
 
-    def __init__(self, Cookies):
-        # self.name = self.Cookies_name_get()
+    def __init__(self, Cookies=None):
         self.session = requests.session()
-        self.cookies = self.session.cookies
+        self.cookies = self.get_cookies()
+        # self.name = self.Cookies_name_get()
+        if Cookies is None:
+            self.cookies = self.__Login()
 
     def __del__(self):
         print("爬取结束！")
@@ -34,9 +36,10 @@ class Spider(object):
     def get_cookies(self):
         self.session.get("https://www.bilibili.com/", headers=DEFAULT_HEADERS)
         print(self.session.cookies)
-        # return cookies
+        return self.session.cookies
 
-    def Login(self):
+    def __Login(self):
+        # TODO: 登录是能登录 COOKIES 也能拿到 但是为什么 COOKIES不能用=    =
         url = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
         response = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
         data = response["data"]["qrcode_key"]
@@ -62,7 +65,8 @@ class Spider(object):
         weblogin_url = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
         # print(requests.get(url=weblogin_url,params=params,cookies=self.cookies,headers=DEFAULT_HEADERS).text)
         self.session.get(url=weblogin_url, params=params, cookies=self.cookies, headers=DEFAULT_HEADERS)
-        print(self.session.cookies)
+        print(self.session.cookies.items())
+        return self.session.cookies
 
     def get_jsondata(self, bv):
         """
