@@ -9,6 +9,7 @@
 from Bilibili_data_get import Spider,SpidertoDB
 from DefaulString import COOKITES
 
+
 bvs = ["BV11f421f7ze"]
 c = {
     "nostalgia_conf": "-1",
@@ -46,7 +47,7 @@ c = {
     "bili_ticket": "eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE0MjU3ODMsImlhdCI6MTcxMTE2NjUyMywicGx0IjotMX0.Xm_VfPqQc8KcNi5RBcWed_dvIZbcuZNzwshB7TxXsqo"
 }
 pachong = Spider()
-
+# Cookies=COOKITES
 user = "root"
 password = "vs8824523"
 host = "localhost"
@@ -58,12 +59,13 @@ toDB = SpidertoDB(user=user,
                   database=database)
 # pachong.get_Comment_tocsv(bvs)
 # pachong.history_title_get()
-# pachong.history_data_get_toDB(data_count=1200,toDB=toDB)
+# pachong.history_data_get_toDB(data_count=300,toDB=toDB)
+pachong.history_title_get()
 # pachong.history_title_get()
 # pachong.favlist_title_get()
 # pachong.hot_video_get()
 # pachong.__Login()
-pachong.favlist_title_get()
+# pachong.favlist_title_get()
 # pachong.get_bangumidata()
 # toDB = SpidertoDB(user=user,
 #                   password=password,

@@ -51,26 +51,23 @@ COOKITES = {
     "rpdid": "|(k|kYmRklJY0J'u~|lm|lu|l",
     "FEED_LIVE_VERSION": "V8",
     "CURRENT_QUALITY": "116",
-    "home_feed_column": "5",
-    "DedeUserID": "32347153",
-    "DedeUserID__ckMd5": "6e20d89c04c0aaaa",
     "LIVE_BUVID": "AUTO5017107285696779",
     "fingerprint": "2e8642a611476715b4f4f48c3ecee59e",
-    "buvid_fp": "2e8642a611476715b4f4f48c3ecee59e",
     "CURRENT_FNVAL": "4048",
-    "browser_resolution": "1920-937",
-    "bili_ticket": "eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTEzNTM5OTcsImlhdCI6MTcxMTA5NDczNywicGx0IjotMX0.nU-lMDi6eGonVU6AYyhGz1ody_tZDLzEewukqPRzbeY",
-    "bili_ticket_expires": "1711353937",
-    "SESSDATA": "bd19c3dd%2C1726661372%2C00424%2A32CjCe_T_uygL_tFHCesEkzucqGrWC0IOZfE3RZuz02dTxgyBxX48_JhBBGA6h6gJdAzISVktKMTZnMWZWeU5KWkQ0SWxCa2FVbS16SjRLTmdFTlZvWGQ1WTFvVklfWndIVlNndnR2c1pRZ1lKWjJWUmY1SG56ajkxLWdzNDlYZ3U1eEt3TXhrM1lBIIEC",
-    "bili_jct": "e700a169dbca9f1c4c678d6b763dfef1",
-    "sid": "8rfj5y0i",
+    "buvid_fp": "2e8642a611476715b4f4f48c3ecee59e",
     "PVID": "2",
-    "share_source_origin": "SINA",
-    "bsource": "search_bing",
-    "b_lsid": "B810EE4DC_18E69F36126",
-    "bp_video_offset_32347153": "911962079714344966"
+    "SESSDATA": "a429ef3e%2C1726898517%2Cca57a%2A31CjDVScAkkzhFYgE-DjITyCEwDXTIccyC45B9_2HmBc1aR2bIQ6ICUAR6BYUOSSsI1xISVkpreF94dFRkSjBfaEJZRkpaZzA1VWZRN2lmbDZUNEdDakVTeEZyRE9FSU9aYlRGUTBwNmg1N1ppRHYzNS02Ylhpa3dmNFlxOUxndjZONExPSGtHVmd3IIEC",
+    "bili_jct": "7fa3955aa303463010d425a66bfd2a5b",
+    "DedeUserID": "32347153",
+    "DedeUserID__ckMd5": "6e20d89c04c0aaaa",
+    "sid": "6ww6bg1x",
+    "bp_video_offset_32347153": "912679936237502465",
+    "b_lsid": "103E4D6CD_18E749EA6BA",
+    "home_feed_column": "5",
+    "browser_resolution": "1707-924",
+    "bili_ticket": "eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE2MTI5MDEsImlhdCI6MTcxMTM1MzY0MSwicGx0IjotMX0.yY-gzhN5S3OJvCEnIy0g32musW-6KbDcHNy0-YZuPno",
+    "bili_ticket_expires": "1711612841"
 }
-
 # 用户主页请求参数体
 USER_HOME_PAGEW_PARAM = {  # 顺序很重要
     "dm_cover_img_str": "",
