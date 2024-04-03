@@ -6,11 +6,11 @@
 """
 
 
-from Bilibili_data_get import Spider,SpidertoDB
+from Bilibili_data_get import Spider,SpidertoDB,VideoSpider
 from DefaulString import COOKITES
 
 
-bvs = ["BV11f421f7ze"]
+bvs = ["BV11Z421h7Af"]
 c = {
     "nostalgia_conf": "-1",
     "CURRENT_PID": "bbd5a7e0-e0d9-11ed-b142-6d6c87db5b27",
@@ -46,8 +46,7 @@ c = {
     "CURRENT_QUALITY": "80",
     "bili_ticket": "eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTE0MjU3ODMsImlhdCI6MTcxMTE2NjUyMywicGx0IjotMX0.Xm_VfPqQc8KcNi5RBcWed_dvIZbcuZNzwshB7TxXsqo"
 }
-pachong = Spider()
-# Cookies=COOKITES
+
 user = "root"
 password = "vs8824523"
 host = "localhost"
@@ -57,10 +56,27 @@ toDB = SpidertoDB(user=user,
                   password=password,
                   host=host,
                   database=database)
+
+print("十连抽~~~~")
+for i in range(10):
+    """
+    十连抽~
+    """
+
+    # Spider.randbilibilivideourl()
+
+
+
+# pachong = Spider(Cookies=c)
+# Cookies=COOKITES
+
+video = VideoSpider(Cookies=c)
+video.get_video(bvid=bvs[0])
+# print(pachong.get_jsondata(bvs[0]))
 # pachong.get_Comment_tocsv(bvs)
 # pachong.history_title_get()
-# pachong.history_data_get_toDB(data_count=300,toDB=toDB)
-pachong.history_title_get()
+# pachong.history_data_get_toDB(data_count=1200,toDB=toDB)
+# pachong.history_title_get()
 # pachong.history_title_get()
 # pachong.favlist_title_get()
 # pachong.hot_video_get()

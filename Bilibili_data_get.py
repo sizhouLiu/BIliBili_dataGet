@@ -9,6 +9,7 @@ import requests
 import os
 import json
 import time
+import random
 import pandas as pd
 import re
 import pymysql
@@ -41,7 +42,10 @@ class Spider(object):
         print(self.session.cookies)
         return self.session.cookies
 
-    def islogin(self):
+    def __islogin(self):
+        """
+        通过接口判断Cookies 是否失效
+        """
 
         loginurl = self.session.get("https://api.bilibili.com/x/web-interface/nav", verify=False,
                                     headers=DEFAULT_HEADERS).json()
@@ -53,14 +57,20 @@ class Spider(object):
             return False
 
     def __Login(self):
-        # TODO: 登录是能登录 COOKIES 也能拿到 但是为什么 COOKIES不能用=    =
-        # if not os.path.exists('Cookies.json'):
-        #     with open("Cookies.json", 'w') as f:
-        #         f.write("")
+        """
+        扫码登录BIliBili获取Cookies
+        登录后会存放到Cookies.json文件
+        如果Cookies失效
+        则重新扫码登录
+        return Cookies
+        """
+        if not os.path.exists('Cookies.json'):
+            with open("Cookies.json", 'w') as f:
+                f.write("")
         with open("Cookies.json","r") as f:
             self.session.cookies = requests.utils.cookiejar_from_dict(json.load(f))
 
-        status = self.islogin()
+        status = self.__islogin()
         if not status:
             url = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
             response = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
@@ -416,16 +426,17 @@ class Spider(object):
             all_jsondata = self.history_json_data_get(oid=oid, view_at=view_at)
 
     def favlist_title_get(self):
+        #TODO: 不知道mid
         save_folder = '个人信息'
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
 
-        favlist_url = f"https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=2024972081"
+        favlist_url = f"https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=32347153"
         response = json.loads(requests.get(url=favlist_url, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
         print(response)
         favlist_names = response["data"]["list"]
         for favlist_name in favlist_names:
-            tilte_data = []
+            title_data = []
             favlist_title = favlist_name["id"]
             media_count = favlist_name["media_count"]
             for i in range((media_count // 20) + 1):
@@ -435,10 +446,10 @@ class Spider(object):
                 alldata = jsondata["data"]["medias"]
                 sleep(0.5)
                 for i in alldata:
-                    tilte_data.append([i["title"], i["intro"], i["bvid"]])
+                    title_data.append([i["title"], i["intro"], i["bvid"]])
                     # print(i["title"], i["intro"])
 
-            df = pd.DataFrame(tilte_data, columns=["tilte", "intro", "bvid"])
+            df = pd.DataFrame(title_data, columns=["title", "intro", "bvid"])
             a = favlist_name["title"]
             df.to_csv(f"./个人信息/{self.name}的{a}收藏夹.csv")
 
@@ -449,7 +460,17 @@ class Spider(object):
                                            headers=DEFAULT_HEADERS).text)
         name = response["data"]["profile"]["name"]
         return name
-
+    @staticmethod
+    def randbilibilivideourl():
+        """
+        随机获取一个视频链接
+        """
+        path = random.choices(os.listdir("./个人信息"))
+        print(path[0])
+        df = pd.read_csv(f"个人信息/{path[0]}")
+        df = df.loc[random.randint(0, df.shape[0]-1)]
+        print(df["title"])
+        print("https://www.bilibili.com/video/" + df["bvid"])
 
 class SpidertoDB():
     # TODO：我想着写一个专门做数据库存储的类 没想好怎么写阿（＞人＜；）
@@ -569,6 +590,31 @@ class SpidertoDB():
         #
         # # 关闭数据库连接
         # self.db.close()
+
+
+class VideoSpider(Spider):
+
+    def get_cid(self,bvid):
+        url = f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}"
+        json_data = json.loads(requests.get(url=url,cookies=self.cookies, headers=DEFAULT_HEADERS).text)
+        # print(json_data["data"][0]["part"])
+        return json_data["data"][0]["cid"],json_data["data"][0]["part"]
+
+    def get_video(self,bvid,qn=112,fnval=0,fnver=0,fourk=1):
+        save_folder = 'video'
+        if not os.path.exists(save_folder):
+            os.mkdir(save_folder)
+        cid, title= self.get_cid(bvid)
+        url = "https://api.bilibili.com/x/player/wbi/playurl"
+        params = {"bvid":bvid,
+                 "cid":cid,
+                 "qn":qn
+                  }
+        b_videodata = json.loads(requests.get(url=url,params=params,cookies=self.cookies,headers=DEFAULT_HEADERS).text)
+        video_data = requests.get(b_videodata["data"]["durl"][0]["backup_url"][0],headers=DEFAULT_HEADERS,cookies=self.cookies).content
+        with open(f"./{save_folder}/{title}.mp4","wb") as fp:
+            fp.write(video_data)
+        print("爬取结束！")
 
 
 if __name__ == '__main__':
