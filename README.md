@@ -23,8 +23,8 @@
 - pandas
 - pymysql
 - urllib
-
 - hashlib
+- qrcode
 
 # 接口文档
 
