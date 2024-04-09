@@ -5,21 +5,22 @@
 @Time : 2024/3/16 14:54
 """
 
-import requests
-import os
 import json
-import time
+import os
 import random
-import pandas as pd
 import re
-import pymysql
-import DefaulString
-
-from string_format import validateTitle, intToStrTime
+import time
 from time import sleep
-from DefaulString import DEFAULT_HEADERS
+
+import pandas as pd
+import pymysql
+import requests
+import DefaulString
 from BIlibiliupBV import get_up_video_data
+from DefaulString import DEFAULT_HEADERS
 from Login import Login
+from string_format import validateTitle, intToStrTime
+
 
 class Spider(Login):
 
@@ -389,7 +390,7 @@ class Spider(Login):
         """
         随机获取一个视频链接
         """
-        path = random.choices(os.listdir("./个人信息"))
+        path = random.choices(os.listdir("../个人信息"))
         print(path[0])
         df = pd.read_csv(f"个人信息/{path[0]}")
         df = df.loc[random.randint(0, df.shape[0]-1)]

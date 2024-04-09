@@ -6,9 +6,7 @@
 """
 
 
-from Bilibili_data_get import Spider,SpidertoDB,VideoSpider
-from DefaulString import COOKITES
-
+from PyBiliBili.Bilibili_data_get import Spider,SpidertoDB
 
 bvs = ["BV12u41177oJ"]
 c = {

@@ -1,5 +1,5 @@
-import time
 import re
+import time
 
 
 def validateTitle(title):

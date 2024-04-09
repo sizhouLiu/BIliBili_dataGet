@@ -6,10 +6,10 @@
 """
 
 
+import base64
 import hashlib
 import random
-import time
-import base64
+
 
 def calculate_md5(string):
     # 通过hashlib模块创建了一个MD5哈希算法的实例
