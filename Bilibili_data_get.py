@@ -13,8 +13,6 @@ import random
 import pandas as pd
 import re
 import pymysql
-import qrcode
-import http.cookiejar as cookielib
 import DefaulString
 
 from string_format import validateTitle, intToStrTime
