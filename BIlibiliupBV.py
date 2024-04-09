@@ -1,6 +1,6 @@
 """
 -*- coding : utf-8 -*-
-获取UP投稿数据 需调整
+获取UP投稿数据
 @Author : Stupid_Cat
 @Time : 2024/3/18 21:01
 """

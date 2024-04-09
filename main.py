@@ -10,7 +10,7 @@ from Bilibili_data_get import Spider,SpidertoDB,VideoSpider
 from DefaulString import COOKITES
 
 
-bvs = ["BV11Z421h7Af"]
+bvs = ["BV12u41177oJ"]
 c = {
     "nostalgia_conf": "-1",
     "CURRENT_PID": "bbd5a7e0-e0d9-11ed-b142-6d6c87db5b27",
@@ -67,14 +67,15 @@ for i in range(10):
 
 
 
-# pachong = Spider(Cookies=c)
+pachong = Spider()
 # Cookies=COOKITES
 
-video = VideoSpider(Cookies=c)
-video.get_video(bvid=bvs[0])
+# video = VideoSpider(Cookies=c)
+# video.get_video("BV1Gs4y1x7Fj")
+
 # print(pachong.get_jsondata(bvs[0]))
 # pachong.get_Comment_tocsv(bvs)
-# pachong.history_title_get()
+pachong.history_title_get()
 # pachong.history_data_get_toDB(data_count=1200,toDB=toDB)
 # pachong.history_title_get()
 # pachong.history_title_get()

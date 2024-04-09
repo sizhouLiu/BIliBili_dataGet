@@ -15,92 +15,24 @@ import re
 import pymysql
 import qrcode
 import http.cookiejar as cookielib
-
 import DefaulString
 
 from string_format import validateTitle, intToStrTime
 from time import sleep
 from DefaulString import DEFAULT_HEADERS
 from BIlibiliupBV import get_up_video_data
+from Login import Login
 
+class Spider(Login):
 
-class Spider(object):
-
-    def __init__(self, Cookies=None):
-        self.session = requests.session()
-        self.cookies = Cookies
-        # print(self.islogin())
-        if Cookies is None:
-            self.cookies = self.__Login()
-        self.name = self.Cookies_name_get()
+    def __init__(self):
+        super().__init__()
+        self.mid = json.loads(self.session.get("https://api.bilibili.com/x/web-interface/nav", verify=False,
+                                               headers=DEFAULT_HEADERS).text)["data"]["mid"]
 
     def __del__(self):
         print("爬取结束！")
 
-    def get_cookies(self):
-        self.session.get("https://www.bilibili.com/", headers=DEFAULT_HEADERS)
-        print(self.session.cookies)
-        return self.session.cookies
-
-    def __islogin(self):
-        """
-        通过接口判断Cookies 是否失效
-        """
-
-        loginurl = self.session.get("https://api.bilibili.com/x/web-interface/nav", verify=False,
-                                    headers=DEFAULT_HEADERS).json()
-        if loginurl['code'] == 0:
-            print('Cookies值有效，', loginurl['data']['uname'], '，已登录！')
-            return True
-        else:
-            print('Cookies值已经失效，请重新扫码登录！')
-            return False
-
-    def __Login(self):
-        """
-        扫码登录BIliBili获取Cookies
-        登录后会存放到Cookies.json文件
-        如果Cookies失效
-        则重新扫码登录
-        return Cookies
-        """
-        if not os.path.exists('Cookies.json'):
-            with open("Cookies.json", 'w') as f:
-                f.write("")
-        with open("Cookies.json","r") as f:
-            self.session.cookies = requests.utils.cookiejar_from_dict(json.load(f))
-
-        status = self.__islogin()
-        if not status:
-            url = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
-            response = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
-            qrcode_key = response["data"]["qrcode_key"]
-            login_url = response["data"]["url"]
-            qr = qrcode.QRCode(
-                version=1,
-                error_correction=qrcode.constants.ERROR_CORRECT_Q,
-                box_size=10,
-                border=4,
-            )
-            # 将链接添加到QRCode对象中
-            qr.add_data(login_url)
-            qr.make(fit=True)
-            img = qr.make_image(fill_color="black", back_color="white")
-            img.save("link_qrcode.png")
-            img.show()
-            params = {
-                "qrcode_key": qrcode_key
-            }
-            weblogin_url = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
-
-
-            print(self.session.get(url=weblogin_url, params=params, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
-            self.cookies = requests.utils.dict_from_cookiejar(self.session.cookies)
-            with open("Cookies.json", "w") as f:
-                f.write(json.dumps(self.cookies))
-            print(self.session.cookies.items())
-
-        return self.session.cookies
 
     def get_jsondata(self, bv):
         """
@@ -431,7 +363,7 @@ class Spider(object):
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
 
-        favlist_url = f"https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid=32347153"
+        favlist_url = f"https://api.bilibili.com/x/v3/fav/folder/created/list-all?up_mid={self.mid}"
         response = json.loads(requests.get(url=favlist_url, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
         print(response)
         favlist_names = response["data"]["list"]
@@ -453,13 +385,7 @@ class Spider(object):
             a = favlist_name["title"]
             df.to_csv(f"./个人信息/{self.name}的{a}收藏夹.csv")
 
-    def Cookies_name_get(self):
-        # url = f"https://space.bilibili.com/{DedeUserID}"
-        # print(requests.get("https://api.bilibili.com/x/space/v2/myinfo?",cookies=self.cookies,headers=DEFAULT_HEADERS).text)
-        response = json.loads(requests.get("https://api.bilibili.com/x/space/v2/myinfo?", cookies=self.cookies,
-                                           headers=DEFAULT_HEADERS).text)
-        name = response["data"]["profile"]["name"]
-        return name
+
     @staticmethod
     def randbilibilivideourl():
         """
@@ -592,7 +518,7 @@ class SpidertoDB():
         # self.db.close()
 
 
-class VideoSpider(Spider):
+class VideoSpider(Login):
 
     def get_cid(self,bvid):
         url = f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}"
