@@ -21,7 +21,6 @@ class Login(object):
             self.cookies = self.__Login()
         self.name = self.__Cookies_name_get()
 
-
     def get_cookies(self):
         self.session.get("https://www.bilibili.com/", headers=DEFAULT_HEADERS)
         print(self.session.cookies)

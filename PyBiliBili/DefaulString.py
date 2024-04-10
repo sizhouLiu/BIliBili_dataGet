@@ -89,13 +89,13 @@ USER_HOME_PAGEW_PARAM = {  # 顺序很重要
 
 
 
-def validateTitle(title):
+def validateTitle(title: str) -> str:
     re_str = r"[\/\\\:\*\?\"\<\>\|]"  # '/ \ : * ? " < > |'
     new_title = re.sub(re_str, "_", title)  # 替换为下划线
     return new_title
 
 
-def intToStrTime(a):
+def intToStrTime(a: float) -> str:
     b = time.localtime(a)  # 转为日期字符串
     c = time.strftime("%Y/%m/%d %H:%M:%S", b)  # 格式化字符串
     return c
@@ -104,7 +104,7 @@ def unify_duration_format(duar_str_or_s: str):
     """
     01:11 -> 71,'00:01:11'
     00:01:11 -> 71,'00:01:11'
-    :param duar_str: '01:11' or '00:01:11'
+    :param duar_str_or_s: '01:11' or '00:01:11'
     :return:  71, '00:01:11'
     """
     error = 0, ''
