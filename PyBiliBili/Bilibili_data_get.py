@@ -33,7 +33,6 @@ class Spider(Login):
     def __del__(self):
         print("爬取结束！")
 
-
     def get_jsondata(self, bv):
         """
         bv：bv号
@@ -358,7 +357,7 @@ class Spider(Login):
             all_jsondata = self.history_json_data_get(oid=oid, view_at=view_at)
 
     def favlist_title_get(self):
-        #TODO: 不知道mid
+        # TODO: 不知道mid
         save_folder = '个人信息'
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
@@ -385,7 +384,6 @@ class Spider(Login):
             a = favlist_name["title"]
             df.to_csv(f"./个人信息/{self.name}的{a}收藏夹.csv")
 
-
     @staticmethod
     def randbilibilivideourl():
         """
@@ -394,11 +392,12 @@ class Spider(Login):
         path = random.choices(os.listdir("../个人信息"))
         print(path[0])
         df = pd.read_csv(f"个人信息/{path[0]}")
-        df = df.loc[random.randint(0, df.shape[0]-1)]
+        df = df.loc[random.randint(0, df.shape[0] - 1)]
         print(df["title"])
         print("https://www.bilibili.com/video/" + df["bvid"])
 
-class SpidertoDB():
+
+class SpidertoDB(object):
     # TODO：我想着写一个专门做数据库存储的类 没想好怎么写阿（＞人＜；）
     def __init__(self,
                  database="",
@@ -520,38 +519,50 @@ class SpidertoDB():
 
 class VideoSpider(Login):
 
-    def get_cid(self,bvid):
+    def get_cid(self, bvid):
         url = f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}"
-        json_data = json.loads(requests.get(url=url,cookies=self.cookies, headers=DEFAULT_HEADERS).text)
+        json_data = json.loads(requests.get(url=url, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
         # print(json_data["data"][0]["part"])
-        return json_data["data"][0]["cid"],json_data["data"][0]["part"]
+        return json_data["data"][0]["cid"], json_data["data"][0]["part"]
 
-    def get_video(self,bvid,qn=112,fnval=0,fnver=0,fourk=1):
+    def get_video(self, bvid, qn=112, fnval=0, fnver=0, fourk=1):
+        """
+        bvid: BV号
+        qn: 清晰度
+        6	240P 极速	仅 MP4 格式支持 仅platform=html5时有效
+        16	360P 流畅
+        32	480P 清晰
+        64	720P 高清	WEB 端默认值 B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到 720P 的取流地址 无 720P 时则为 720P60
+        74	720P60 高帧率	登录认证
+        80	1080P 高清	TV 端与 APP 端默认值登录认证
+        112	1080P+ 高码率	大会员认证
+        116	1080P60 高帧率	大会员认证
+        120	4K 超清	需要fnval&128=128且fourk=1 大会员认证
+        125	HDR 真彩色	仅支持 DASH 格式
+        需要fnval&64=64 大会员认证
+        126	杜比视界	仅支持 DASH 格式 需要fnval&512=512 大会员认证
+        127	8K 超高清	仅支持 DASH 格式 需要fnval&1024=1024 大会员认证
+
+        fnver: 视频流版本标识 目前该值恒为0
+        fnval:视频流格式标识
+        1	MP4 格式
+        16	DASH 格式
+        """
         save_folder = 'video'
         if not os.path.exists(save_folder):
             os.mkdir(save_folder)
-        cid, title= self.get_cid(bvid)
+        cid, title = self.get_cid(bvid)
         url = "https://api.bilibili.com/x/player/wbi/playurl"
-        params = {"bvid":bvid,
-                 "cid":cid,
-                 "qn":qn
+        params = {"bvid": bvid,
+                  "cid": cid,
+                  "qn": qn
                   }
-        b_videodata = json.loads(requests.get(url=url,params=params,cookies=self.cookies,headers=DEFAULT_HEADERS).text)
-        video_data = requests.get(b_videodata["data"]["durl"][0]["backup_url"][0],headers=DEFAULT_HEADERS,cookies=self.cookies).content
-        with open(f"./{save_folder}/{title}.mp4","wb") as fp:
+        b_videodata = json.loads(
+            requests.get(url=url, params=params, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
+        video_data = requests.get(b_videodata["data"]["durl"][0]["backup_url"][0], headers=DEFAULT_HEADERS,
+                                  cookies=self.cookies).content
+        with open(f"./{save_folder}/{title}.mp4", "wb") as fp:
             fp.write(video_data)
         print("爬取结束！")
 
 
-if __name__ == '__main__':
-    bvs = ["BV11f421f7ze"]
-    pachong = Spider(Cookies=DefaulString.COOKITES)
-
-    user = "root"
-    password = "vs8824523"
-    host = "localhost"
-    database = "bilibilicommentdb"
-    toDB = SpidertoDB(user=user,
-                      password=password,
-                      host=host,
-                      database=database)
