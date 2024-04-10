@@ -11,10 +11,8 @@ import requests
 
 from urllib.parse import urlencode
 from retrying import retry
-
 from PyBiliBili import DefaulString
 from PyBiliBili import encrtpy
-from PyBiliBili import string_format
 
 
 # 解析ifno
@@ -32,7 +30,7 @@ def analysis_parms(info_json):
         dic_info["comment_num"] = each.get("comment","")
         dic_info["url"] = "https://www.bilibili.com/video/{}".format(each.get("bvid",""))
         dic_info["title"] = each.get("title","")
-        duration, duration_str = string_format.unify_duration_format(each.get("length", ""))
+        duration, duration_str = DefaulString.unify_duration_format(each.get("length", ""))
         dic_info["duration"] = duration_str
         dic_info["cover"] = each.get("pic","")
         dic_info["uid"] = each.get("mid","")

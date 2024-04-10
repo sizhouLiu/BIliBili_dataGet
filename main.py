@@ -54,39 +54,29 @@ toDB = PyBiliBili.SpidertoDB(user=user,
                   host=host,
                   database=database)
 
-print("十连抽~~~~")
-for i in range(10):
-    """
-    十连抽~
-    """
-    Spider.randbilibilivideourl()
+# print("十连抽~~~~")
+# for i in range(10):
+#     """
+#     十连抽~
+#     """
+    # Spider.randbilibilivideourl()
 
 
 
-pachong = PyBiliBili.Spider()
+# pachong = PyBiliBili.Spider()
 # Cookies=COOKITES
 
-# video = VideoSpider(Cookies=c)
-# video.get_video("BV1Gs4y1x7Fj")
-
+video = PyBiliBili.VideoSpider(Cookies=c)
+video.get_video("BV1Gs4y1x7Fj")
 # print(pachong.get_jsondata(bvs[0]))
 # pachong.get_Comment_tocsv(bvs)
-pachong.history_title_get()
+# pachong.history_title_get()
 # pachong.history_data_get_toDB(data_count=1200,toDB=toDB)
 # pachong.history_title_get()
 # pachong.history_title_get()
 # pachong.favlist_title_get()
 # pachong.hot_video_get()
-# pachong.__Login()
 # pachong.favlist_title_get()
 # pachong.get_bangumidata()
-# toDB = SpidertoDB(user=user,
-#                   password=password,
-#                   host=host,
-#                   database=database)
-# a = pachong.get_upvideo_bv(1140672573, page=2, max_page=6)
-# for i in a:
-#     print([i[1]])
-#     pachong.get_Comment_to_DataBase([i[1]], toDB=toDB)
-#
+
 

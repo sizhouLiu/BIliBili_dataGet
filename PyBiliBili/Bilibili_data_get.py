@@ -18,9 +18,9 @@ import requests
 from PyBiliBili import DefaulString
 
 from .BIlibiliupBV import get_up_video_data
-from .DefaulString import DEFAULT_HEADERS
+from .DefaulString import DEFAULT_HEADERS,validateTitle, intToStrTime
 from .Login import Login
-from .string_format import validateTitle, intToStrTime
+
 
 
 class Spider(Login):

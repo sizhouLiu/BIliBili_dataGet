@@ -56,6 +56,7 @@ class Login(object):
             self.session.cookies = requests.utils.cookiejar_from_dict(json.load(f))
 
         status = self.__islogin()
+        # 获取登录状态 若Cookies失效则生成二维码登录
         if not status:
             url = "https://passport.bilibili.com/x/passport-login/web/qrcode/generate"
             response = json.loads(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
