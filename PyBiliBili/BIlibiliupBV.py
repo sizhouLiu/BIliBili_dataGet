@@ -7,14 +7,14 @@
 import datetime
 import json
 import time
-from urllib.parse import urlencode
-
 import requests
+
+from urllib.parse import urlencode
 from retrying import retry
 
-import DefaulString
-import encrtpy
-import string_format
+from PyBiliBili import DefaulString
+from PyBiliBili import encrtpy
+from PyBiliBili import string_format
 
 
 # 解析ifno

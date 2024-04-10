@@ -6,11 +6,10 @@
 """
 import json
 import os
-
 import qrcode
 import requests
 
-from DefaulString import DEFAULT_HEADERS
+from PyBiliBili.DefaulString import DEFAULT_HEADERS
 
 
 class Login(object):

@@ -5,8 +5,8 @@
 @Time : 2024/3/18 21:01
 """
 
-
-from PyBiliBili.Bilibili_data_get import Spider,SpidertoDB
+import PyBiliBili
+# from PyBiliBili.Bilibili_data_get import Spider,SpidertoDB
 
 bvs = ["BV12u41177oJ"]
 c = {
@@ -50,7 +50,7 @@ password = "vs8824523"
 host = "localhost"
 database = "bilibilicommentdb"
 
-toDB = SpidertoDB(user=user,
+toDB = PyBiliBili.SpidertoDB(user=user,
                   password=password,
                   host=host,
                   database=database)
@@ -65,7 +65,7 @@ for i in range(10):
 
 
 
-pachong = Spider()
+pachong = PyBiliBili.Spider()
 # Cookies=COOKITES
 
 # video = VideoSpider(Cookies=c)
