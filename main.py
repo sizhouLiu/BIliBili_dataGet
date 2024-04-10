@@ -6,7 +6,6 @@
 """
 
 import PyBiliBili
-# from PyBiliBili.Bilibili_data_get import Spider,SpidertoDB
 
 bvs = ["BV12u41177oJ"]
 c = {
@@ -60,8 +59,7 @@ for i in range(10):
     """
     十连抽~
     """
-
-    # Spider.randbilibilivideourl()
+    Spider.randbilibilivideourl()
 
 
 
