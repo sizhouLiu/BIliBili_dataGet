@@ -30,7 +30,33 @@
 
 ------
 
+## Login类
+
+| 参数    | 类型      | 必要性 | 备注 |
+| ------- | --------- | ------ | ---- |
+| cookies | json/dict | 必要   |      |
+
+#### __islogin
+
+*通过接口判断*Cookies *是否失效*
+
+#### __Login
+
+*扫码登录**BIliBili**获取**Cookies
+**登录后会存放到**Cookies.json**文件
+**如果**Cookies**失效
+**则重新扫码登录
+return Cookies*
+
+#### __Cookies_name_get
+
+获取Cookies 所对应的用户ID
+
+
+
 ## Spider 类
+
+继承自Login类
 
 | 参数    | 类型      | 必要性 | 备注 |
 | ------- | --------- | ------ | ---- |
@@ -105,17 +131,11 @@ get_bangumidata
 
 #### favlist_title_get
 
-参数：无
+参数：mid
 
 在个人信息文件夹下生成一个.csv文件  返回默认收藏夹的数据数据包括视频标题 tag kid bvid
 
 
-
-#### Cookies_name_get
-
-获取Cookies所对的用户id
-
-返回用户名
 
 ## SpidertoDB类
 
@@ -155,3 +175,23 @@ get_bangumidata
 
 *TODO:* *去除重复数据* *SQL**语句条件判断错误把我的表给清空了 暂时搁置阿**(´**。＿。｀**)*
 
+## VideoSpider类
+
+#### get_cid
+
+| 参数 | 类型   | 必要性 | 备注 |
+| ---- | ------ | ------ | ---- |
+| bvid | string | 必要   | BV号 |
+
+#### get_video
+
+爬取视频并保存到/video文件夹中
+
+| 参数    | 类型   | 必要性 | 备注                             |
+| ------- | ------ | ------ | -------------------------------- |
+| bvid    | string | 必要   | BV号                             |
+| *qn*    | int    | 必要   | 清晰度                           |
+| *fnver* | int    | 必要   | *视频流版本标识 目前该值恒为**0* |
+| *fnval* | int    | 必要   | *视频流格式标识*                 |
+
+## 

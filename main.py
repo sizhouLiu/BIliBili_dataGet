@@ -7,7 +7,7 @@
 
 import PyBiliBili
 
-bvs = ["BV12u41177oJ"]
+bvs = ["BV1Xb4y1x7sP"]
 c = {
     "nostalgia_conf": "-1",
     "CURRENT_PID": "bbd5a7e0-e0d9-11ed-b142-6d6c87db5b27",
@@ -63,11 +63,14 @@ toDB = PyBiliBili.SpidertoDB(user=user,
 
 
 
-# pachong = PyBiliBili.Spider()
+pachong = PyBiliBili.Spider()
 # Cookies=COOKITES
 
-video = PyBiliBili.VideoSpider(Cookies=c)
-video.get_video("BV1Gs4y1x7Fj")
+# video = PyBiliBili.VideoSpider(Cookies=c)
+# video.get_video("BV1Gs4y1x7Fj")
+pachong.get_Comment_tocsv(bvs)
+# pachong.get_Comment_tocsv([i[0] for i in pachong.get_Search_videos(keyword="那些无名之辈")])
+
 # print(pachong.get_jsondata(bvs[0]))
 # pachong.get_Comment_tocsv(bvs)
 # pachong.history_title_get()
