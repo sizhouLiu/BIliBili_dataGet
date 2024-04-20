@@ -5,6 +5,7 @@
 @Time : 2024/4/9 21:01
 """
 import json
+import logging
 import os
 import qrcode
 import requests
@@ -34,10 +35,11 @@ class Login(object):
         loginurl = self.session.get("https://api.bilibili.com/x/web-interface/nav", verify=False,
                                     headers=DEFAULT_HEADERS).json()
         if loginurl['code'] == 0:
-            print('Cookies值有效，', loginurl['data']['uname'], '，已登录！')
+            logging.info('Cookies值有效，{}，已登录！'.format(loginurl['data']['uname']))
+
             return True
         else:
-            print('Cookies值已经失效，请重新扫码登录！')
+            logging.error('Cookies值已经失效，请重新扫码登录！')
             return False
 
     def __Login(self):
@@ -78,12 +80,12 @@ class Login(object):
             }
             weblogin_url = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
 
-            print(self.session.get(url=weblogin_url, params=params, cookies=self.cookies,
+            logging.info(self.session.get(url=weblogin_url, params=params, cookies=self.cookies,
                                    headers=DEFAULT_HEADERS).text)
             self.cookies = requests.utils.dict_from_cookiejar(self.session.cookies)
             with open("Cookies.json", "w") as f:
                 f.write(json.dumps(self.cookies))
-            print(self.session.cookies.items())
+            logging.info(self.session.cookies.items())
 
         return self.session.cookies
 

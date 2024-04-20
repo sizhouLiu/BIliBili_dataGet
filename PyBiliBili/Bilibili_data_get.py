@@ -6,6 +6,7 @@
 """
 
 import json
+import logging
 import os
 import random
 import re
@@ -22,6 +23,7 @@ from .DefaulString import DEFAULT_HEADERS, validateTitle, intToStrTime
 from .Login import Login
 
 
+logging.basicConfig(level=logging.INFO)
 class SpidertoDB(object):
     # TODO：我想着写一个专门做数据库存储的类 没想好怎么写阿（＞人＜；）
     def __init__(self,
@@ -42,7 +44,7 @@ class SpidertoDB(object):
         """
         在类被回收时关闭连接
         """
-        print("数据库连接关闭")
+        logging.info("数据库连接关闭")
         self.db.close()
 
     def __sql_toDB_judge(self, sql: str) -> None:
@@ -52,7 +54,7 @@ class SpidertoDB(object):
             self.db.commit()
         except Exception as e:
             self.db.rollback()
-            print(e)
+            logging.error(e)
 
     def Comment_insert_toDB(self, title, upname, row, type=None):
         self.create_table()
@@ -150,7 +152,8 @@ class Spider(Login):
                                                headers=DEFAULT_HEADERS).text)["data"]["mid"]
 
     def __del__(self):
-        print("爬取结束！")
+
+        logging.info("爬取结束！")
 
     def get_jsondata(self, bv: str) -> dict:
         """
@@ -162,7 +165,7 @@ class Spider(Login):
 
         json_data = json.loads(res[0])
         if 'message' in json_data['error']:
-            print(json_data['error']['message'])
+            logging.error(json_data['error']['message'])
             return Exception("错误")
         return json_data
 
@@ -176,12 +179,12 @@ class Spider(Login):
 
     def get_upname(self, json_data:dict) -> str:
         name = json_data["videoData"]["owner"]["name"]
-        print(name)
+        logging.info(name)
         return name
 
     def get_desc(self, json_data: dict) -> str:
         desc = json_data["videoData"]["desc"]
-        print(desc)
+        logging.info(desc)
         return desc
 
     def get_response(self, aid: int, page=1) -> requests.Response:
@@ -212,7 +215,7 @@ class Spider(Login):
         if not bvs:
             ValueError("未传入正确的Bv列表")
         for bv in bvs:
-            print(bv)
+            logging.info(bv)
             jsondata = self.get_jsondata(bv)
             aid = self.get_aid(jsondata)
             title = self.get_title(jsondata)
@@ -262,7 +265,7 @@ class Spider(Login):
                      '点赞数': likes, "性别": sex})
                 df.to_csv(f'{save_folder}/{title}.csv', encoding='utf-8-sig', index=False)
 
-                print(f'\n\n已经保存 {df.shape[0]} 条评论到 {save_folder}/{title}.csv\n\n')
+                logging.info(f'\n\n已经保存 {df.shape[0]} 条评论到 {save_folder}/{title}.csv\n\n')
 
                 sleep(1)
 
@@ -282,12 +285,12 @@ class Spider(Login):
             ValueError("未传入正确的Bv列表")
         count = 0
         for bv in bvs:
-            print(bv)
+            logging.info(bv)
             jsondata = self.get_jsondata(bv)
             aid = self.get_aid(jsondata)
             title = self.get_title(jsondata)
             title = validateTitle(title=title)
-            print(title)
+            logging.info(title)
             response = self.get_response(aid=aid)
             upname = self.get_upname(jsondata)
             total_page = json.loads(response.text)['data']['page']['count'] // 20 + 1
@@ -303,7 +306,7 @@ class Spider(Login):
                     else:
                         break
                 for row in data:
-                    print('根评论', row['member']['uname'], row['content']['message'])
+                    logging.info('根评论', row['member']['uname'], row['content']['message'])
                     is_root.append('是')
                     times.append(intToStrTime(row['ctime']))
                     uname.append(row['member']['uname'])
@@ -328,7 +331,7 @@ class Spider(Login):
                 sleep(1.5)
                 response = self.get_response(page=page, aid=aid)
 
-                print(f'\n\n已经保存 {count} 条评论到bilibilicommentdb')
+                logging.info(f'\n\n已经保存 {count} 条评论到bilibilicommentdb')
 
             # 每抓完 1 条视频的评论休眠 10s
             sleep(10)
@@ -508,7 +511,7 @@ class Spider(Login):
         """
         随机获取一个视频链接
         """
-        path = random.choices(os.listdir("../个人信息"))
+        path = random.choices(os.listdir("./个人信息"))
         print(path[0])
         df = pd.read_csv(f"个人信息/{path[0]}")
         df = df.loc[random.randint(0, df.shape[0] - 1)]
@@ -562,4 +565,4 @@ class VideoSpider(Login):
                                   cookies=self.cookies).content
         with open(f"./{save_folder}/{title}.mp4", "wb") as fp:
             fp.write(video_data)
-        print("爬取结束！")
+        logging.info("爬取结束！")

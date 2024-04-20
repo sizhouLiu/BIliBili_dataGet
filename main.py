@@ -5,7 +5,7 @@
 @Time : 2024/3/18 21:01
 """
 
-import PyBiliBili
+import PyBiliBili as Pbl
 
 bvs = ["BV1Xb4y1x7sP"]
 c = {
@@ -49,7 +49,7 @@ password = "vs8824523"
 host = "localhost"
 database = "bilibilicommentdb"
 
-toDB = PyBiliBili.SpidertoDB(user=user,
+toDB = Pbl.SpidertoDB(user=user,
                   password=password,
                   host=host,
                   database=database)
@@ -59,17 +59,16 @@ toDB = PyBiliBili.SpidertoDB(user=user,
 #     """
 #     十连抽~
 #     """
-    # Spider.randbilibilivideourl()
+#     Pbl.Spider.randbilibilivideourl()
 
 
 
-pachong = PyBiliBili.Spider()
-# Cookies=COOKITES
+pachong = Pbl.Spider()
 
-# video = PyBiliBili.VideoSpider(Cookies=c)
-# video.get_video("BV1Gs4y1x7Fj")
+# video = Pbl.VideoSpider(Cookies=c)
+# video.get_video("BV1Nu4y1z7Gx")
 pachong.get_Comment_tocsv(bvs)
-# pachong.get_Comment_tocsv([i[0] for i in pachong.get_Search_videos(keyword="那些无名之辈")])
+pachong.get_Comment_tocsv([i[0] for i in pachong.get_Search_videos(keyword="那些无名之辈")])
 
 # print(pachong.get_jsondata(bvs[0]))
 # pachong.get_Comment_tocsv(bvs)
