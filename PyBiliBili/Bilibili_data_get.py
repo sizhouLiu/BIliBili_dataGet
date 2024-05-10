@@ -428,16 +428,16 @@ class Spider(Login):
         all_jsondata = json_data["data"]["list"]
         return all_jsondata
 
-    def hot_video_get(self, pn=1) -> None:
+    def hot_video_get(self, pn=1) -> str:
         """
         B站热门 看人下菜
         Cookies不同热门列表也不同
         """
         url = "https://api.bilibili.com/x/web-interface/popular"
-        parms = {"pn": pn,
+        params = {"pn": pn,
                  }
-        print(requests.get(url=url, headers=DEFAULT_HEADERS, cookies=self.cookies).text)
 
+        return requests.get(url=url, params=params,headers=DEFAULT_HEADERS, cookies=self.cookies).text
     def history_title_get(self, data_count=1200) -> None:
         """
        爬取历史记录并保存为csv文件
@@ -504,7 +504,7 @@ class Spider(Login):
 
             df = pd.DataFrame(title_data, columns=["title", "intro", "bvid"])
             a = favlist_name["title"]
-            df.to_csv(f"./个人信息/{self.name}的{a}收藏夹.csv")
+            df.to_csv(f"./个人信息/{self.name}{a}favlist.csv",encoding="utf-8-sig")
 
     @staticmethod
     def randbilibilivideourl() -> None:
@@ -559,6 +559,7 @@ class VideoSpider(Login):
                   "cid": cid,
                   "qn": qn
                   }
+
         b_videodata = json.loads(
             requests.get(url=url, params=params, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
         video_data = requests.get(b_videodata["data"]["durl"][0]["backup_url"][0], headers=DEFAULT_HEADERS,
