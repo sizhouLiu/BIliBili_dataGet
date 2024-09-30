@@ -7,6 +7,8 @@
 import json
 import logging
 import os
+import time
+
 import qrcode
 import requests
 
@@ -52,7 +54,7 @@ class Login(object):
         """
         if not os.path.exists('Cookies.json'):
             with open("Cookies.json", 'w') as f:
-                f.write("")
+                f.write("{}")
         with open("Cookies.json", "r") as f:
             self.session.cookies = requests.utils.cookiejar_from_dict(json.load(f))
 
@@ -80,8 +82,9 @@ class Login(object):
             }
             weblogin_url = "https://passport.bilibili.com/x/passport-login/web/qrcode/poll"
 
-            logging.info(self.session.get(url=weblogin_url, params=params, cookies=self.cookies,
-                                   headers=DEFAULT_HEADERS).text)
+            # logging.info(self.session.get(url=weblogin_url, params=params, cookies=self.cookies,
+            #                        headers=DEFAULT_HEADERS).text)
+            self.wait_qrcode(weblogin_url=weblogin_url,params=params)
             self.cookies = requests.utils.dict_from_cookiejar(self.session.cookies)
             with open("Cookies.json", "w") as f:
                 f.write(json.dumps(self.cookies))
@@ -94,3 +97,28 @@ class Login(object):
                                            headers=DEFAULT_HEADERS).text)
         name = response["data"]["profile"]["name"]
         return name
+
+    def wait_qrcode(self, weblogin_url, params):
+        time.sleep(10)
+        count = 10
+        while count > 0:
+            if json.loads(self.session.get(url=weblogin_url,
+                                           params=params,
+                                           cookies=self.cookies,
+                                           headers=DEFAULT_HEADERS
+                                           ).text).get("message", "1") == "未扫码":
+
+                print(self.session.get(url=weblogin_url,
+                                       params=params,
+                                       cookies=self.cookies,
+                                       headers=DEFAULT_HEADERS
+                                       ).text)
+                time.sleep(10)
+                count -= 1
+            else:
+                break
+            return json.loads(self.session.get(url=weblogin_url,
+                                               params=params,
+                                               cookies=self.cookies,
+                                               headers=DEFAULT_HEADERS
+                                               ).text).get("message", "1")

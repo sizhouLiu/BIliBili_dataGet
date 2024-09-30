@@ -147,7 +147,7 @@ class SpidertoDB(object):
 class Spider(Login):
 
     def __init__(self):
-        super().__init__()
+        super().__init__(Cookies=None)
         self.mid = json.loads(self.session.get("https://api.bilibili.com/x/web-interface/nav", verify=False,
                                                headers=DEFAULT_HEADERS).text)["data"]["mid"]
 
@@ -337,7 +337,7 @@ class Spider(Login):
             sleep(10)
 
     @staticmethod
-    def get_bangumidata():
+    def get_bangumidata() -> None:
         """
         获取bilibili番剧排行榜top50的csv数据
         """
@@ -520,6 +520,8 @@ class Spider(Login):
 
 
 class VideoSpider(Login):
+    def __init__(self):
+        super().__init__(Cookies=None)
 
     def get_cid(self, bvid: str) -> tuple:
         url = f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}"

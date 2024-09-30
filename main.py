@@ -61,12 +61,12 @@ toDB = Pbl.SpidertoDB(user=user,
 #     """
 #     Pbl.Spider.randbilibilivideourl()
 
-enumerate
+
 
 pachong = Pbl.Spider()
 
-# video = Pbl.VideoSpider(Cookies=c)
-# video.get_video("BV1V5411G7Qb")
+video = Pbl.VideoSpider()
+# video.get_video("BV1F3411J793")
 # pachong.get_Comment_tocsv(bvs)
 # pachong.get_Comment_tocsv([i[0] for i in pachong.get_Search_videos(keyword="那些无名之辈")])
 
@@ -77,7 +77,7 @@ pachong = Pbl.Spider()
 # pachong.history_title_get()
 # pachong.history_title_get()
 # pachong.favlist_title_get()
-pachong.hot_video_get()
+# pachong.hot_video_get()
 # pachong.favlist_title_get()
 # pachong.get_bangumidata()
 
