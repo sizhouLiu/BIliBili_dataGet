@@ -25,7 +25,8 @@
 - urllib
 - hashlib
 - qrcode
-
+# 快速开始
+`pip -r install requirements.txt`
 # 接口文档
 
 ------
