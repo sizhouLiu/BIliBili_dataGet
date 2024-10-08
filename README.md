@@ -26,7 +26,27 @@
 - hashlib
 - qrcode
 # 快速开始
-`pip -r install requirements.txt`
+
+1.安装依赖
+
+```shell
+pip3 -r install requirements.txt
+```
+
+2.编写程序 实例化对象
+
+```python
+from PyBiliBili import Spider
+pachong = Spider()
+pachong.get_bangumidata()
+```
+
+3. run it
+
+```python
+python3 main.py
+```
+
 # 接口文档
 
 ------
