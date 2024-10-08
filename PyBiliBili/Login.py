@@ -99,16 +99,21 @@ class Login(object):
         return name
 
     def wait_qrcode(self, weblogin_url, params):
-        time.sleep(10)
+        time.sleep(15)
         count = 10
+        print(json.loads(self.session.get(url=weblogin_url,
+                                           params=params,
+                                           cookies=self.cookies,
+                                           headers=DEFAULT_HEADERS
+                                           ).text))
         while count > 0:
             if json.loads(self.session.get(url=weblogin_url,
                                            params=params,
                                            cookies=self.cookies,
                                            headers=DEFAULT_HEADERS
-                                           ).text).get("message", "1") == "未扫码":
+                                           ).text).get("data", {}).get("message","0") in ["未扫码", "二维码已扫码未确认"]:
 
-                print(self.session.get(url=weblogin_url,
+                logging.info(self.session.get(url=weblogin_url,
                                        params=params,
                                        cookies=self.cookies,
                                        headers=DEFAULT_HEADERS
@@ -117,7 +122,7 @@ class Login(object):
                 count -= 1
             else:
                 break
-            return json.loads(self.session.get(url=weblogin_url,
+        return json.loads(self.session.get(url=weblogin_url,
                                                params=params,
                                                cookies=self.cookies,
                                                headers=DEFAULT_HEADERS
