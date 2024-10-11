@@ -16,6 +16,7 @@ from time import sleep
 import pandas as pd
 import pymysql
 import requests
+from tqdm import tqdm
 from PyBiliBili import DefaulString
 
 from .BIlibiliupBV import get_up_video_data
@@ -523,34 +524,37 @@ class VideoSpider(Login):
     def __init__(self):
         super().__init__(Cookies=None)
 
-    def get_cid(self, bvid: str) -> tuple:
-        url = f"https://api.bilibili.com/x/player/pagelist?bvid={bvid}"
-        json_data = json.loads(requests.get(url=url, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
-        # print(json_data["data"][0]["part"])
-        return json_data["data"][0]["cid"], json_data["data"][0]["part"]
+    def get_cid(self, bvid):
+        response = requests.get(f"https://api.bilibili.com/x/web-interface/view?bvid={bvid}")
+        json_data = response.json()
+        try:
+            return json_data["data"][0]["cid"], json_data["data"][0]["part"]
+        except KeyError:
+            print(f"Error: 'data' key not found in response for bvid: {bvid}")
+            return None, None
 
-    def get_video(self, bvid: str, qn=112, fnval=0, fnver=0, fourk=1) ->None:
+    def get_video(self, bvid: str, qn=112, fnval=0, fnver=0, fourk=1) -> None:
         """
         bvid: BV号
         qn: 清晰度
-        6	240P 极速	仅 MP4 格式支持 仅platform=html5时有效
-        16	360P 流畅
-        32	480P 清晰
-        64	720P 高清	WEB 端默认值 B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到 720P 的取流地址 无 720P 时则为 720P60
-        74	720P60 高帧率	登录认证
-        80	1080P 高清	TV 端与 APP 端默认值登录认证
-        112	1080P+ 高码率	大会员认证
-        116	1080P60 高帧率	大会员认证
-        120	4K 超清	需要fnval&128=128且fourk=1 大会员认证
-        125	HDR 真彩色	仅支持 DASH 格式
+        6    240P 极速    仅 MP4 格式支持 仅platform=html5时有效
+        16    360P 流畅
+        32    480P 清晰
+        64    720P 高清    WEB 端默认值 B站前端需要登录才能选择，但是直接发送请求可以不登录就拿到 720P 的取流地址 无 720P 时则为 720P60
+        74    720P60 高帧率    登录认证
+        80    1080P 高清    TV 端与 APP 端默认值登录认证
+        112    1080P+ 高码率    大会员认证
+        116    1080P60 高帧率    大会员认证
+        120    4K 超清    需要fnval&128=128且fourk=1 大会员认证
+        125    HDR 真彩色    仅支持 DASH 格式
         需要fnval&64=64 大会员认证
-        126	杜比视界	仅支持 DASH 格式 需要fnval&512=512 大会员认证
-        127	8K 超高清	仅支持 DASH 格式 需要fnval&1024=1024 大会员认证
+        126    杜比视界    仅支持 DASH 格式 需要fnval&512=512 大会员认证
+        127    8K 超高清    仅支持 DASH 格式 需要fnval&1024=1024 大会员认证
 
         fnver: 视频流版本标识 目前该值恒为0
         fnval:视频流格式标识
-        1	MP4 格式
-        16	DASH 格式
+        1    MP4 格式
+        16    DASH 格式
         """
         save_folder = 'video'
         if not os.path.exists(save_folder):
@@ -564,8 +568,15 @@ class VideoSpider(Login):
 
         b_videodata = json.loads(
             requests.get(url=url, params=params, cookies=self.cookies, headers=DEFAULT_HEADERS).text)
-        video_data = requests.get(b_videodata["data"]["durl"][0]["backup_url"][0], headers=DEFAULT_HEADERS,
-                                  cookies=self.cookies).content
-        with open(f"./{save_folder}/{title}.mp4", "wb") as fp:
-            fp.write(video_data)
+        video_url = b_videodata["data"]["durl"][0]["backup_url"][0]
+        response = requests.get(video_url, headers=DEFAULT_HEADERS, cookies=self.cookies, stream=True)
+        total_size = int(response.headers.get('content-length', 0))
+        block_size = 1024  # 1 Kibibyte
+
+        with open(f"./{save_folder}/{title}.mp4", "wb") as fp, tqdm(
+            total=total_size, unit='iB', unit_scale=True, desc=f"Downloading {title}"
+        ) as progress_bar:
+            for data in response.iter_content(block_size):
+                progress_bar.update(len(data))
+                fp.write(data)
         logging.info("爬取结束！")

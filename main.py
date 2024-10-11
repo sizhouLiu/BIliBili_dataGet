@@ -6,6 +6,7 @@
 """
 
 import PyBiliBili as Pbl
+from tqdm import tqdm
 
 bvs = ["BV1Xb4y1x7sP"]
 user = "Your Database username"
@@ -13,10 +14,10 @@ password = "password"
 host = "host"
 database = "databasename"
 
-toDB = Pbl.SpidertoDB(user=user,
-                  password=password,
-                  host=host,
-                  database=database)
+# toDB = Pbl.SpidertoDB(user=user,
+#                   password=password,
+#                   host=host,
+#                   database=database)
 
 # print("十连抽~~~~")
 # for i in range(10):
@@ -25,9 +26,9 @@ toDB = Pbl.SpidertoDB(user=user,
 #     """
 #     Pbl.Spider.randbilibilivideourl()
 
-
-
 pachong = Pbl.Spider()
+
+video = Pbl.VideoSpider()
 
 # video = Pbl.VideoSpider()
 # video.get_video("BV1F3411J793")
@@ -46,3 +47,13 @@ pachong = Pbl.Spider()
 # pachong.get_bangumidata()
 
 
+# 一个按关键词下载视频的例子
+serch_res = pachong.get_Search_videos()
+
+for i in tqdm(serch_res, desc="Processing videos", unit="video"):
+    cid, title = video.get_cid(i[0])
+    if cid and title:
+        print(f"视频名称: {title}")
+        video.get_video(i[0])
+    else:
+        print(f"Skipping video with bvid: {i[0]} due to missing data.")
